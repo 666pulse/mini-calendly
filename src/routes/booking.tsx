@@ -33,7 +33,7 @@ app.get("/:slug", (c) => {
   const month = Number(c.req.query("month")) || now.getMonth() + 1;
   const selectedDate = c.req.query("date") ? Number(c.req.query("date")) : undefined;
 
-  const availableDates = getAvailableDates(event.id, year, month);
+  const availableDates = getAvailableDates(event.id, year, month, event.start_date, event.end_date);
   const baseUrl = `/${slug}`;
 
   let slots: { start: string; end: string }[] = [];

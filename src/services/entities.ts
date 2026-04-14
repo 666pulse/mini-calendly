@@ -7,6 +7,8 @@ export interface EventType {
   description: string;
   color: string;
   custom_fields: string; // JSON: CustomField[]
+  start_date: string | null; // YYYY-MM-DD
+  end_date: string | null;   // YYYY-MM-DD
   created_at: string;
 }
 

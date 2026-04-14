@@ -61,7 +61,9 @@ export function getAvailableSlots(
 export function getAvailableDates(
   eventTypeId: number,
   year: number,
-  month: number // 1-indexed
+  month: number, // 1-indexed
+  startDate?: string | null,
+  endDate?: string | null,
 ): number[] {
   const availabilities = EventTypesService.getAvailability(eventTypeId);
   const availableDays = new Set(availabilities.map((a) => a.day_of_week));
@@ -71,9 +73,14 @@ export function getAvailableDates(
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  const rangeStart = startDate ? new Date(startDate + "T00:00:00") : null;
+  const rangeEnd = endDate ? new Date(endDate + "T23:59:59") : null;
+
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day);
     if (date < today) continue;
+    if (rangeStart && date < rangeStart) continue;
+    if (rangeEnd && date > rangeEnd) continue;
     if (availableDays.has(date.getDay())) {
       dates.push(day);
     }

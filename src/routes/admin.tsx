@@ -167,6 +167,17 @@ app.get("/events/new", (c) => {
             <textarea name="description" rows={2} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <input type="date" name="start_date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <input type="date" name="end_date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            </div>
+          </div>
+
           <fieldset class="border border-gray-200 rounded-md p-4">
             <legend class="text-sm font-medium text-gray-700 px-1">Availability</legend>
             <p class="text-xs text-gray-500 mb-3">Select days and set hours</p>
@@ -206,6 +217,8 @@ app.post("/events", async (c) => {
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
     custom_fields: (body.custom_fields_json as string) || "[]",
+    start_date: (body.start_date as string) || null,
+    end_date: (body.end_date as string) || null,
   });
 
   const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];
@@ -258,6 +271,17 @@ app.get("/events/:id", (c) => {
             <textarea name="description" rows={2} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">{event.description}</textarea>
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <input type="date" name="start_date" value={event.start_date || ""} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <input type="date" name="end_date" value={event.end_date || ""} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            </div>
+          </div>
+
           <fieldset class="border border-gray-200 rounded-md p-4">
             <legend class="text-sm font-medium text-gray-700 px-1">Availability</legend>
             {DAYS.map((day, i) => {
@@ -306,6 +330,8 @@ app.post("/events/:id", async (c) => {
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
     custom_fields: (body.custom_fields_json as string) || "[]",
+    start_date: (body.start_date as string) || null,
+    end_date: (body.end_date as string) || null,
   });
 
   const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];

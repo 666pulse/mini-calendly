@@ -19,9 +19,20 @@ export function initDB() {
       description TEXT DEFAULT '',
       color TEXT DEFAULT '#0069ff',
       custom_fields TEXT DEFAULT '[]',
+      start_date TEXT,
+      end_date TEXT,
       created_at TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  // Migration: add start_date/end_date if missing
+  const etCols = db.query<{ name: string }, []>("PRAGMA table_info(event_types)").all();
+  if (!etCols.find((c) => c.name === "start_date")) {
+    db.run("ALTER TABLE event_types ADD COLUMN start_date TEXT");
+  }
+  if (!etCols.find((c) => c.name === "end_date")) {
+    db.run("ALTER TABLE event_types ADD COLUMN end_date TEXT");
+  }
 
   // Migration: add custom_fields if missing
   const cols = db.query<{ name: string }, []>("PRAGMA table_info(event_types)").all();

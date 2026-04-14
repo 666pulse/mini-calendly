@@ -26,10 +26,12 @@ export function create(data: {
   duration_minutes: number;
   description: string;
   custom_fields: string;
+  start_date: string | null;
+  end_date: string | null;
 }): number {
   const result = db.run(
-    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields) VALUES (?, ?, ?, ?, ?, ?)`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields]
+    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.start_date, data.end_date]
   );
   return Number(result.lastInsertRowid);
 }
@@ -43,11 +45,13 @@ export function update(
     duration_minutes: number;
     description: string;
     custom_fields: string;
+    start_date: string | null;
+    end_date: string | null;
   }
 ) {
   db.run(
-    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ? WHERE id = ?`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, id]
+    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, start_date = ?, end_date = ? WHERE id = ?`,
+    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.start_date, data.end_date, id]
   );
 }
 
