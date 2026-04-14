@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
+import type { CustomField } from "../services/entities";
 import { Layout } from "../components/Layout";
 import { Calendar } from "../components/Calendar";
 import { TimeSlots } from "../components/TimeSlots";
@@ -122,6 +123,8 @@ app.get("/:slug/book", (c) => {
   const event = EventTypesService.findBySlug(slug);
   if (!event) return c.redirect("/");
 
+  const customFields: CustomField[] = JSON.parse(event.custom_fields || "[]");
+
   const [startH, startM] = time.split(":").map(Number);
   const endMinutes = startH * 60 + startM + event.duration_minutes;
   const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
@@ -197,6 +200,21 @@ app.get("/:slug/book", (c) => {
                 />
               </div>
 
+              {customFields.map((f) => (
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    {f.label}{f.required && " *"}
+                  </label>
+                  <input
+                    type="text"
+                    name={`cf_${f.key}`}
+                    required={f.required}
+                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder={f.label}
+                  />
+                </div>
+              ))}
+
               <div class="flex gap-3 pt-2">
                 <button
                   type="submit"
@@ -232,6 +250,13 @@ app.post("/:slug/book", async (c) => {
   const email = body.email as string;
   const notes = (body.notes as string) || "";
 
+  // Collect custom field values
+  const customFields: CustomField[] = JSON.parse(event.custom_fields || "[]");
+  const customData: Record<string, string> = {};
+  for (const f of customFields) {
+    customData[f.key] = (body[`cf_${f.key}`] as string) || "";
+  }
+
   const startTime = `${date}T${time}:00`;
   const [startH, startM] = time.split(":").map(Number);
   const endMinutes = startH * 60 + startM + event.duration_minutes;
@@ -259,6 +284,7 @@ app.post("/:slug/book", async (c) => {
     start_time: startTime,
     end_time: endTime,
     notes,
+    custom_data: JSON.stringify(customData),
   });
 
   return c.redirect(`/${slug}/confirmed?date=${date}&time=${time}&name=${encodeURIComponent(name)}`);

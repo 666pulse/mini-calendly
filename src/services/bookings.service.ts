@@ -43,11 +43,12 @@ export function create(data: {
   start_time: string;
   end_time: string;
   notes: string;
+  custom_data: string;
 }): number {
   const result = db.run(
-    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes]
+    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes, custom_data)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes, data.custom_data]
   );
   return Number(result.lastInsertRowid);
 }

@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 import { Layout } from "../components/Layout";
+import { CustomFieldsEditor } from "../components/CustomFieldsEditor";
+import type { CustomField } from "../services/entities";
 
 const DAYS = [
   "Monday",
@@ -179,6 +181,8 @@ app.get("/events/new", (c) => {
             ))}
           </fieldset>
 
+          <CustomFieldsEditor fields={[]} />
+
           <div class="flex gap-3 pt-2">
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
               Create
@@ -201,6 +205,7 @@ app.post("/events", async (c) => {
     host_name: body.host_name as string,
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
+    custom_fields: (body.custom_fields_json as string) || "[]",
   });
 
   const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];
@@ -269,6 +274,8 @@ app.get("/events/:id", (c) => {
             })}
           </fieldset>
 
+          <CustomFieldsEditor fields={JSON.parse(event.custom_fields || "[]") as CustomField[]} />
+
           <div class="flex gap-3 pt-2">
             <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
               Save Changes
@@ -298,6 +305,7 @@ app.post("/events/:id", async (c) => {
     host_name: body.host_name as string,
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
+    custom_fields: (body.custom_fields_json as string) || "[]",
   });
 
   const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];

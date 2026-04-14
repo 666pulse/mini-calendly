@@ -18,9 +18,22 @@ export function initDB() {
       duration_minutes INTEGER NOT NULL DEFAULT 30,
       description TEXT DEFAULT '',
       color TEXT DEFAULT '#0069ff',
+      custom_fields TEXT DEFAULT '[]',
       created_at TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  // Migration: add custom_fields if missing
+  const cols = db.query<{ name: string }, []>("PRAGMA table_info(event_types)").all();
+  if (!cols.find((c) => c.name === "custom_fields")) {
+    db.run("ALTER TABLE event_types ADD COLUMN custom_fields TEXT DEFAULT '[]'");
+  }
+
+  // Migration: add custom_data if missing
+  const bCols = db.query<{ name: string }, []>("PRAGMA table_info(bookings)").all();
+  if (!bCols.find((c) => c.name === "custom_data")) {
+    db.run("ALTER TABLE bookings ADD COLUMN custom_data TEXT DEFAULT '{}'");
+  }
 
   db.run(`
     CREATE TABLE IF NOT EXISTS availability (

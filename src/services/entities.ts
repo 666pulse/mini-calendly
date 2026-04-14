@@ -6,7 +6,14 @@ export interface EventType {
   duration_minutes: number;
   description: string;
   color: string;
+  custom_fields: string; // JSON: CustomField[]
   created_at: string;
+}
+
+export interface CustomField {
+  key: string;
+  label: string;
+  required: boolean;
 }
 
 export interface Booking {
@@ -19,6 +26,7 @@ export interface Booking {
   timezone: string;
   notes: string;
   status: string;
+  custom_data: string; // JSON: Record<string, string>
   created_at: string;
 }
 

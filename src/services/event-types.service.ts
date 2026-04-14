@@ -25,10 +25,11 @@ export function create(data: {
   host_name: string;
   duration_minutes: number;
   description: string;
+  custom_fields: string;
 }): number {
   const result = db.run(
-    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description) VALUES (?, ?, ?, ?, ?)`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description]
+    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields) VALUES (?, ?, ?, ?, ?, ?)`,
+    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields]
   );
   return Number(result.lastInsertRowid);
 }
@@ -41,11 +42,12 @@ export function update(
     host_name: string;
     duration_minutes: number;
     description: string;
+    custom_fields: string;
   }
 ) {
   db.run(
-    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ? WHERE id = ?`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, id]
+    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ? WHERE id = ?`,
+    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, id]
   );
 }
 
