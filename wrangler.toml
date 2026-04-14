@@ -1,0 +1,13 @@
+name = "mini-calendly"
+main = "src/worker.ts"
+compatibility_date = "2026-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "mini-calendly-db"
+database_id = ""
+
+[vars]
+ADMIN_USER = ""
+ADMIN_PASS = ""
