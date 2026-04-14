@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { Env } from "../app";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 import type { CustomField } from "../services/entities";
@@ -7,12 +8,13 @@ import { Calendar } from "../components/Calendar";
 import { TimeSlots } from "../components/TimeSlots";
 import { getAvailableDates, getAvailableSlots } from "../lib/availability";
 
-const app = new Hono();
+const app = new Hono<Env>();
 
 // Public booking page: /:slug
-app.get("/:slug", (c) => {
+app.get("/:slug", async (c) => {
+  const db = c.get("db");
   const slug = c.req.param("slug");
-  const event = EventTypesService.findBySlug(slug);
+  const event = await EventTypesService.findBySlug(db, slug);
 
   if (!event) {
     return c.html(
@@ -33,14 +35,14 @@ app.get("/:slug", (c) => {
   const month = Number(c.req.query("month")) || now.getMonth() + 1;
   const selectedDate = c.req.query("date") ? Number(c.req.query("date")) : undefined;
 
-  const availableDates = getAvailableDates(event.id, year, month, event.start_date, event.end_date);
+  const availableDates = await getAvailableDates(db, event.id, year, month, event.start_date, event.end_date);
   const baseUrl = `/${slug}`;
 
   let slots: { start: string; end: string }[] = [];
   let dateStr = "";
   if (selectedDate) {
     dateStr = `${year}-${String(month).padStart(2, "0")}-${String(selectedDate).padStart(2, "0")}`;
-    slots = getAvailableSlots(event.id, dateStr, event.duration_minutes);
+    slots = await getAvailableSlots(db, event.id, dateStr, event.duration_minutes);
   }
 
   const selectedDateObj = selectedDate
@@ -115,12 +117,13 @@ app.get("/:slug", (c) => {
 });
 
 // Booking form page
-app.get("/:slug/book", (c) => {
+app.get("/:slug/book", async (c) => {
+  const db = c.get("db");
   const slug = c.req.param("slug");
   const date = c.req.query("date") || "";
   const time = c.req.query("time") || "";
 
-  const event = EventTypesService.findBySlug(slug);
+  const event = await EventTypesService.findBySlug(db, slug);
   if (!event) return c.redirect("/");
 
   const customFields: CustomField[] = JSON.parse(event.custom_fields || "[]");
@@ -239,8 +242,9 @@ app.get("/:slug/book", (c) => {
 
 // Handle booking submission
 app.post("/:slug/book", async (c) => {
+  const db = c.get("db");
   const slug = c.req.param("slug");
-  const event = EventTypesService.findBySlug(slug);
+  const event = await EventTypesService.findBySlug(db, slug);
   if (!event) return c.redirect("/");
 
   const body = await c.req.parseBody();
@@ -263,7 +267,7 @@ app.post("/:slug/book", async (c) => {
   const endTimeStr = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
   const endTime = `${date}T${endTimeStr}:00`;
 
-  if (BookingsService.findConflict(event.id, startTime, endTime)) {
+  if (await BookingsService.findConflict(db, event.id, startTime, endTime)) {
     return c.html(
       <Layout title="Time Unavailable">
         <div class="flex items-center justify-center min-h-screen">
@@ -277,7 +281,7 @@ app.post("/:slug/book", async (c) => {
     );
   }
 
-  BookingsService.create({
+  await BookingsService.create(db, {
     event_type_id: event.id,
     invitee_name: name,
     invitee_email: email,
@@ -291,9 +295,10 @@ app.post("/:slug/book", async (c) => {
 });
 
 // Confirmation page
-app.get("/:slug/confirmed", (c) => {
+app.get("/:slug/confirmed", async (c) => {
+  const db = c.get("db");
   const slug = c.req.param("slug");
-  const event = EventTypesService.findBySlug(slug);
+  const event = await EventTypesService.findBySlug(db, slug);
   if (!event) return c.redirect("/");
 
   const date = c.req.query("date") || "";

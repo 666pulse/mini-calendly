@@ -1,29 +1,11 @@
-import { Hono } from "hono";
-import { basicAuth } from "hono/basic-auth";
-import { initDB } from "./db/index";
-import admin from "./routes/admin";
-import home from "./routes/home";
-import booking from "./routes/booking";
+import { createSqliteAdapter } from "./db/sqlite-adapter";
+import { initSchema } from "./db/schema";
+import { createApp } from "./app";
 
-// Initialize database
-initDB();
+const adapter = createSqliteAdapter();
+await initSchema(adapter);
 
-const app = new Hono({ strict: false });
-
-// Admin routes with basic auth
-const auth = basicAuth({
-  username: process.env.ADMIN_USER || "admin",
-  password: process.env.ADMIN_PASS || "admin",
-});
-app.use("/admin", auth);
-app.use("/admin/*", auth);
-app.route("/admin", admin);
-
-// Home -> event list
-app.route("/", home);
-
-// Public booking routes (must be last - catches /:slug)
-app.route("/", booking);
+const app = createApp(() => adapter);
 
 export default {
   port: 3000,

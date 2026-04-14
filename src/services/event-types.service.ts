@@ -1,42 +1,40 @@
-import { db } from "../db/index";
+import type { DbAdapter } from "../db/adapter";
 import type { EventType, Availability } from "./entities";
 
-export function findBySlug(slug: string): EventType | null {
-  return db
-    .query<EventType, [string]>("SELECT * FROM event_types WHERE slug = ?")
-    .get(slug);
+export async function findBySlug(db: DbAdapter, slug: string) {
+  return db.get<EventType>("SELECT * FROM event_types WHERE slug = ?", [slug]);
 }
 
-export function findById(id: number): EventType | null {
-  return db
-    .query<EventType, [number]>("SELECT * FROM event_types WHERE id = ?")
-    .get(id);
+export async function findById(db: DbAdapter, id: number) {
+  return db.get<EventType>("SELECT * FROM event_types WHERE id = ?", [id]);
 }
 
-export function listAll(): EventType[] {
-  return db
-    .query<EventType, []>("SELECT * FROM event_types ORDER BY created_at DESC")
-    .all();
+export async function listAll(db: DbAdapter) {
+  return db.all<EventType>("SELECT * FROM event_types ORDER BY created_at DESC");
 }
 
-export function create(data: {
-  slug: string;
-  name: string;
-  host_name: string;
-  duration_minutes: number;
-  description: string;
-  custom_fields: string;
-  start_date: string | null;
-  end_date: string | null;
-}): number {
-  const result = db.run(
+export async function create(
+  db: DbAdapter,
+  data: {
+    slug: string;
+    name: string;
+    host_name: string;
+    duration_minutes: number;
+    description: string;
+    custom_fields: string;
+    start_date: string | null;
+    end_date: string | null;
+  }
+) {
+  const result = await db.run(
     `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.start_date, data.end_date]
   );
-  return Number(result.lastInsertRowid);
+  return result.lastInsertRowid;
 }
 
-export function update(
+export async function update(
+  db: DbAdapter,
   id: number,
   data: {
     slug: string;
@@ -49,37 +47,35 @@ export function update(
     end_date: string | null;
   }
 ) {
-  db.run(
-    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, start_date = ?, end_date = ? WHERE id = ?`,
+  await db.run(
+    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, start_date = ?, end_date = ?, updated_at = datetime('now') WHERE id = ?`,
     [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.start_date, data.end_date, id]
   );
 }
 
-export function remove(id: number) {
-  db.run("DELETE FROM event_types WHERE id = ?", [id]);
+export async function remove(db: DbAdapter, id: number) {
+  await db.run("DELETE FROM event_types WHERE id = ?", [id]);
 }
 
-export function getAvailability(eventTypeId: number): Availability[] {
-  return db
-    .query<Availability, [number]>("SELECT * FROM availability WHERE event_type_id = ?")
-    .all(eventTypeId);
+export async function getAvailability(db: DbAdapter, eventTypeId: number) {
+  return db.all<Availability>("SELECT * FROM availability WHERE event_type_id = ?", [eventTypeId]);
 }
 
-export function getAvailabilityByDay(eventTypeId: number, dayOfWeek: number): Availability[] {
-  return db
-    .query<Availability, [number, number]>(
-      "SELECT * FROM availability WHERE event_type_id = ? AND day_of_week = ?"
-    )
-    .all(eventTypeId, dayOfWeek);
+export async function getAvailabilityByDay(db: DbAdapter, eventTypeId: number, dayOfWeek: number) {
+  return db.all<Availability>(
+    "SELECT * FROM availability WHERE event_type_id = ? AND day_of_week = ?",
+    [eventTypeId, dayOfWeek]
+  );
 }
 
-export function replaceAvailability(
+export async function replaceAvailability(
+  db: DbAdapter,
   eventTypeId: number,
   slots: { day_of_week: number; start_time: string; end_time: string }[]
 ) {
-  db.run("DELETE FROM availability WHERE event_type_id = ?", [eventTypeId]);
+  await db.run("DELETE FROM availability WHERE event_type_id = ?", [eventTypeId]);
   for (const slot of slots) {
-    db.run(
+    await db.run(
       `INSERT INTO availability (event_type_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)`,
       [eventTypeId, slot.day_of_week, slot.start_time, slot.end_time]
     );

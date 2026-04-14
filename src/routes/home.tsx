@@ -1,11 +1,13 @@
 import { Hono } from "hono";
+import type { Env } from "../app";
 import * as EventTypesService from "../services/event-types.service";
 import { Layout } from "../components/Layout";
 
-const app = new Hono();
+const app = new Hono<Env>();
 
-app.get("/", (c) => {
-  const events = EventTypesService.listAll();
+app.get("/", async (c) => {
+  const db = c.get("db");
+  const events = await EventTypesService.listAll(db);
 
   return c.html(
     <Layout title="Calendly">

@@ -1,3 +1,4 @@
+import type { DbAdapter } from "../db/adapter";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 
@@ -6,20 +7,21 @@ export interface TimeSlot {
   end: string;
 }
 
-export function getAvailableSlots(
+export async function getAvailableSlots(
+  db: DbAdapter,
   eventTypeId: number,
   date: string, // YYYY-MM-DD
   durationMinutes: number,
-): TimeSlot[] {
+): Promise<TimeSlot[]> {
   const dateObj = new Date(date + "T00:00:00");
-  const dayOfWeek = dateObj.getDay(); // 0=Sun, 6=Sat
+  const dayOfWeek = dateObj.getDay();
 
-  const availabilities = EventTypesService.getAvailabilityByDay(eventTypeId, dayOfWeek);
+  const availabilities = await EventTypesService.getAvailabilityByDay(db, eventTypeId, dayOfWeek);
   if (availabilities.length === 0) return [];
 
   const dayStart = date + "T00:00:00";
   const dayEnd = date + "T23:59:59";
-  const bookings = BookingsService.findByDateRange(eventTypeId, dayStart, dayEnd);
+  const bookings = await BookingsService.findByDateRange(db, eventTypeId, dayStart, dayEnd);
 
   const slots: TimeSlot[] = [];
 
@@ -58,14 +60,15 @@ export function getAvailableSlots(
   return slots;
 }
 
-export function getAvailableDates(
+export async function getAvailableDates(
+  db: DbAdapter,
   eventTypeId: number,
   year: number,
-  month: number, // 1-indexed
+  month: number,
   startDate?: string | null,
   endDate?: string | null,
-): number[] {
-  const availabilities = EventTypesService.getAvailability(eventTypeId);
+): Promise<number[]> {
+  const availabilities = await EventTypesService.getAvailability(db, eventTypeId);
   const availableDays = new Set(availabilities.map((a) => a.day_of_week));
   const dates: number[] = [];
 
