@@ -8,22 +8,19 @@ type CloudflareBindings = {
   ADMIN_PASS?: string;
 };
 
-let schemaInitialized = false;
-
 const app = createApp((c) => {
   const env = c.env as CloudflareBindings;
   return createD1Adapter(env.DB);
 });
 
-// Initialize schema on first request
-const originalFetch = app.fetch;
 export default {
   async fetch(request: Request, env: CloudflareBindings, ctx: ExecutionContext) {
-    if (!schemaInitialized) {
+    try {
       const adapter = createD1Adapter(env.DB);
       await initSchema(adapter);
-      schemaInitialized = true;
+      return app.fetch(request, env, ctx);
+    } catch (e: any) {
+      return new Response(`Error: ${e.message}\n${e.stack}`, { status: 500 });
     }
-    return originalFetch.call(app, request, env, ctx);
   },
 };

@@ -14,7 +14,8 @@ export function createD1Adapter(d1: D1Database): DbAdapter {
       return result.results;
     },
     async exec(sql) {
-      await d1.exec(sql);
+      // D1 exec doesn't handle multi-line well, use prepare().run() instead
+      await d1.prepare(sql).run();
     },
   };
 }

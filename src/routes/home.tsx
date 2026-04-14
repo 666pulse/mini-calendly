@@ -76,7 +76,8 @@ app.get("/", async (c) => {
             </div>
             <div class="flex items-center gap-4 text-xs text-gray-400">
               <span>
-                &copy; {new Date().getFullYear()} Rebase Community
+                Copyright &copy; {new Date().getFullYear()} Rebase Community.
+                All rights reserved.
               </span>
             </div>
           </div>
