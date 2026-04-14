@@ -1,36 +1,7 @@
 import { Hono } from "hono";
-import { db } from "../db/index";
+import * as EventTypesService from "../services/event-types.service";
+import * as BookingsService from "../services/bookings.service";
 import { Layout } from "../components/Layout";
-
-interface EventTypeRow {
-  id: number;
-  slug: string;
-  name: string;
-  host_name: string;
-  duration_minutes: number;
-  description: string;
-  color: string;
-  created_at: string;
-}
-
-interface BookingRow {
-  id: number;
-  invitee_name: string;
-  invitee_email: string;
-  start_time: string;
-  end_time: string;
-  status: string;
-  notes: string;
-  created_at: string;
-  event_name: string;
-}
-
-interface AvailabilityRow {
-  id: number;
-  day_of_week: number;
-  start_time: string;
-  end_time: string;
-}
 
 const DAYS = [
   "Monday",
@@ -46,17 +17,8 @@ const app = new Hono();
 
 // Admin dashboard
 app.get("/", (c) => {
-  const events = db
-    .query<EventTypeRow, []>("SELECT * FROM event_types ORDER BY created_at DESC")
-    .all();
-
-  const bookings = db
-    .query<BookingRow, []>(
-      `SELECT b.*, e.name as event_name FROM bookings b
-       JOIN event_types e ON b.event_type_id = e.id
-       ORDER BY b.start_time DESC LIMIT 50`
-    )
-    .all();
+  const events = EventTypesService.listAll();
+  const bookings = BookingsService.listRecent();
 
   return c.html(
     <Layout title="Admin - Calendly">
@@ -208,7 +170,7 @@ app.get("/events/new", (c) => {
             <p class="text-xs text-gray-500 mb-3">Select days and set hours</p>
             {DAYS.map((day, i) => (
               <div class="flex items-center gap-3 mb-2">
-                <input type="checkbox" name={`day_${i}`} value="1" checked={i >= 1 && i <= 5} class="rounded" />
+                <input type="checkbox" name={`day_${i}`} value="1" checked={i >= 0 && i <= 4} class="rounded" />
                 <span class="w-24 text-sm">{day}</span>
                 <input type="text" name={`start_${i}`} value="09:00" class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
                 <span class="text-gray-400">-</span>
@@ -233,22 +195,25 @@ app.get("/events/new", (c) => {
 app.post("/events", async (c) => {
   const body = await c.req.parseBody();
 
-  const result = db.run(
-    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description) VALUES (?, ?, ?, ?, ?)`,
-    [body.slug as string, body.name as string, body.host_name as string, Number(body.duration), (body.description as string) || ""]
-  );
+  const eventTypeId = EventTypesService.create({
+    slug: body.slug as string,
+    name: body.name as string,
+    host_name: body.host_name as string,
+    duration_minutes: Number(body.duration),
+    description: (body.description as string) || "",
+  });
 
-  const eventTypeId = Number(result.lastInsertRowid);
-
-  // Add availability
+  const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];
   for (let i = 0; i < 7; i++) {
     if (body[`day_${i}`]) {
-      db.run(
-        `INSERT INTO availability (event_type_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)`,
-        [eventTypeId, i, body[`start_${i}`] as string, body[`end_${i}`] as string]
-      );
+      slots.push({
+        day_of_week: i,
+        start_time: body[`start_${i}`] as string,
+        end_time: body[`end_${i}`] as string,
+      });
     }
   }
+  EventTypesService.replaceAvailability(eventTypeId, slots);
 
   return c.redirect("/admin");
 });
@@ -256,12 +221,10 @@ app.post("/events", async (c) => {
 // Edit event type
 app.get("/events/:id", (c) => {
   const id = Number(c.req.param("id"));
-  const event = db.query<EventTypeRow, [number]>("SELECT * FROM event_types WHERE id = ?").get(id);
+  const event = EventTypesService.findById(id);
   if (!event) return c.redirect("/admin");
 
-  const avails = db
-    .query<AvailabilityRow, [number]>("SELECT * FROM availability WHERE event_type_id = ?")
-    .all(id);
+  const avails = EventTypesService.getAvailability(id);
   const availMap = new Map(avails.map((a) => [a.day_of_week, a]));
 
   return c.html(
@@ -329,21 +292,25 @@ app.post("/events/:id", async (c) => {
   const id = Number(c.req.param("id"));
   const body = await c.req.parseBody();
 
-  db.run(
-    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ? WHERE id = ?`,
-    [body.slug as string, body.name as string, body.host_name as string, Number(body.duration), (body.description as string) || "", id]
-  );
+  EventTypesService.update(id, {
+    slug: body.slug as string,
+    name: body.name as string,
+    host_name: body.host_name as string,
+    duration_minutes: Number(body.duration),
+    description: (body.description as string) || "",
+  });
 
-  // Replace availability
-  db.run("DELETE FROM availability WHERE event_type_id = ?", [id]);
+  const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];
   for (let i = 0; i < 7; i++) {
     if (body[`day_${i}`]) {
-      db.run(
-        `INSERT INTO availability (event_type_id, day_of_week, start_time, end_time) VALUES (?, ?, ?, ?)`,
-        [id, i, body[`start_${i}`] as string, body[`end_${i}`] as string]
-      );
+      slots.push({
+        day_of_week: i,
+        start_time: body[`start_${i}`] as string,
+        end_time: body[`end_${i}`] as string,
+      });
     }
   }
+  EventTypesService.replaceAvailability(id, slots);
 
   return c.redirect("/admin");
 });
@@ -351,14 +318,14 @@ app.post("/events/:id", async (c) => {
 // Delete event type
 app.post("/events/:id/delete", (c) => {
   const id = Number(c.req.param("id"));
-  db.run("DELETE FROM event_types WHERE id = ?", [id]);
+  EventTypesService.remove(id);
   return c.redirect("/admin");
 });
 
 // Cancel booking
 app.get("/bookings/:id/cancel", (c) => {
   const id = Number(c.req.param("id"));
-  db.run("UPDATE bookings SET status = 'cancelled' WHERE id = ?", [id]);
+  BookingsService.cancel(id);
   return c.redirect("/admin");
 });
 

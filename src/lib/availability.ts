@@ -1,15 +1,5 @@
-import { db } from "../db/index";
-
-interface AvailabilityRow {
-  day_of_week: number;
-  start_time: string;
-  end_time: string;
-}
-
-interface BookingRow {
-  start_time: string;
-  end_time: string;
-}
+import * as EventTypesService from "../services/event-types.service";
+import * as BookingsService from "../services/bookings.service";
 
 export interface TimeSlot {
   start: string; // HH:mm
@@ -20,28 +10,16 @@ export function getAvailableSlots(
   eventTypeId: number,
   date: string, // YYYY-MM-DD
   durationMinutes: number,
-  timezone: string = "Asia/Singapore"
 ): TimeSlot[] {
   const dateObj = new Date(date + "T00:00:00");
   const dayOfWeek = dateObj.getDay(); // 0=Sun, 6=Sat
 
-  // Get availability for this day of week
-  const availabilities = db
-    .query<AvailabilityRow, [number, number]>(
-      "SELECT day_of_week, start_time, end_time FROM availability WHERE event_type_id = ? AND day_of_week = ?"
-    )
-    .all(eventTypeId, dayOfWeek);
-
+  const availabilities = EventTypesService.getAvailabilityByDay(eventTypeId, dayOfWeek);
   if (availabilities.length === 0) return [];
 
-  // Get existing bookings for this date
   const dayStart = date + "T00:00:00";
   const dayEnd = date + "T23:59:59";
-  const bookings = db
-    .query<BookingRow, [number, string, string]>(
-      "SELECT start_time, end_time FROM bookings WHERE event_type_id = ? AND start_time >= ? AND start_time <= ? AND status = 'confirmed'"
-    )
-    .all(eventTypeId, dayStart, dayEnd);
+  const bookings = BookingsService.findByDateRange(eventTypeId, dayStart, dayEnd);
 
   const slots: TimeSlot[] = [];
 
@@ -62,7 +40,6 @@ export function getAvailableSlots(
       const slotStart = `${String(slotStartH).padStart(2, "0")}:${String(slotStartM).padStart(2, "0")}`;
       const slotEnd = `${String(slotEndH).padStart(2, "0")}:${String(slotEndM).padStart(2, "0")}`;
 
-      // Check if slot conflicts with existing bookings
       const slotStartISO = `${date}T${slotStart}:00`;
       const slotEndISO = `${date}T${slotEnd}:00`;
 
@@ -74,7 +51,7 @@ export function getAvailableSlots(
         slots.push({ start: slotStart, end: slotEnd });
       }
 
-      currentMinutes += 30; // 30-minute intervals
+      currentMinutes += 30;
     }
   }
 
@@ -86,13 +63,7 @@ export function getAvailableDates(
   year: number,
   month: number // 1-indexed
 ): number[] {
-  // Get all availability rules for this event type
-  const availabilities = db
-    .query<AvailabilityRow, [number]>(
-      "SELECT day_of_week, start_time, end_time FROM availability WHERE event_type_id = ?"
-    )
-    .all(eventTypeId);
-
+  const availabilities = EventTypesService.getAvailability(eventTypeId);
   const availableDays = new Set(availabilities.map((a) => a.day_of_week));
   const dates: number[] = [];
 
@@ -102,7 +73,7 @@ export function getAvailableDates(
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(year, month - 1, day);
-    if (date < today) continue; // Skip past dates
+    if (date < today) continue;
     if (availableDays.has(date.getDay())) {
       dates.push(day);
     }

@@ -1,28 +1,17 @@
 import { Hono } from "hono";
-import { db } from "../db/index";
+import * as EventTypesService from "../services/event-types.service";
+import * as BookingsService from "../services/bookings.service";
 import { Layout } from "../components/Layout";
 import { Calendar } from "../components/Calendar";
 import { TimeSlots } from "../components/TimeSlots";
 import { getAvailableDates, getAvailableSlots } from "../lib/availability";
-
-interface EventTypeRow {
-  id: number;
-  slug: string;
-  name: string;
-  host_name: string;
-  duration_minutes: number;
-  description: string;
-  color: string;
-}
 
 const app = new Hono();
 
 // Public booking page: /:slug
 app.get("/:slug", (c) => {
   const slug = c.req.param("slug");
-  const event = db
-    .query<EventTypeRow, [string]>("SELECT * FROM event_types WHERE slug = ?")
-    .get(slug);
+  const event = EventTypesService.findBySlug(slug);
 
   if (!event) {
     return c.html(
@@ -104,12 +93,6 @@ app.get("/:slug", (c) => {
                   selectedDate={selectedDate}
                   baseUrl={baseUrl}
                 />
-
-                {/* <div class="mt-6 text-sm text-gray-600">
-                  <p class="font-medium mb-1">Time zone</p>
-                  <p class="text-gray-500">Asia/Singapore (SGT)</p>
-                </div> */}
-
               </div>
 
               {selectedDate && (
@@ -136,10 +119,7 @@ app.get("/:slug/book", (c) => {
   const date = c.req.query("date") || "";
   const time = c.req.query("time") || "";
 
-  const event = db
-    .query<EventTypeRow, [string]>("SELECT * FROM event_types WHERE slug = ?")
-    .get(slug);
-
+  const event = EventTypesService.findBySlug(slug);
   if (!event) return c.redirect("/");
 
   const [startH, startM] = time.split(":").map(Number);
@@ -242,10 +222,7 @@ app.get("/:slug/book", (c) => {
 // Handle booking submission
 app.post("/:slug/book", async (c) => {
   const slug = c.req.param("slug");
-  const event = db
-    .query<EventTypeRow, [string]>("SELECT * FROM event_types WHERE slug = ?")
-    .get(slug);
-
+  const event = EventTypesService.findBySlug(slug);
   if (!event) return c.redirect("/");
 
   const body = await c.req.parseBody();
@@ -261,14 +238,7 @@ app.post("/:slug/book", async (c) => {
   const endTimeStr = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
   const endTime = `${date}T${endTimeStr}:00`;
 
-  // Check for conflicts
-  const conflict = db
-    .query(
-      "SELECT id FROM bookings WHERE event_type_id = ? AND start_time < ? AND end_time > ? AND status = 'confirmed'"
-    )
-    .get(event.id, endTime, startTime);
-
-  if (conflict) {
+  if (BookingsService.findConflict(event.id, startTime, endTime)) {
     return c.html(
       <Layout title="Time Unavailable">
         <div class="flex items-center justify-center min-h-screen">
@@ -282,11 +252,14 @@ app.post("/:slug/book", async (c) => {
     );
   }
 
-  db.run(
-    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [event.id, name, email, startTime, endTime, notes]
-  );
+  BookingsService.create({
+    event_type_id: event.id,
+    invitee_name: name,
+    invitee_email: email,
+    start_time: startTime,
+    end_time: endTime,
+    notes,
+  });
 
   return c.redirect(`/${slug}/confirmed?date=${date}&time=${time}&name=${encodeURIComponent(name)}`);
 });
@@ -294,10 +267,7 @@ app.post("/:slug/book", async (c) => {
 // Confirmation page
 app.get("/:slug/confirmed", (c) => {
   const slug = c.req.param("slug");
-  const event = db
-    .query<EventTypeRow, [string]>("SELECT * FROM event_types WHERE slug = ?")
-    .get(slug);
-
+  const event = EventTypesService.findBySlug(slug);
   if (!event) return c.redirect("/");
 
   const date = c.req.query("date") || "";
