@@ -104,10 +104,12 @@ app.get("/:slug", (c) => {
                   selectedDate={selectedDate}
                   baseUrl={baseUrl}
                 />
-                <div class="mt-6 text-sm text-gray-600">
+
+                {/* <div class="mt-6 text-sm text-gray-600">
                   <p class="font-medium mb-1">Time zone</p>
                   <p class="text-gray-500">Asia/Singapore (SGT)</p>
-                </div>
+                </div> */}
+
               </div>
 
               {selectedDate && (
