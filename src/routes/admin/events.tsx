@@ -18,7 +18,7 @@ app.get("/new", (c) => {
     <Layout title="New Event Type">
       <div class="max-w-xl mx-auto p-6">
         <h1 class="text-2xl font-bold text-gray-900 mb-6">Create Event Type</h1>
-        <form method="POST" action="/admin/events" class="space-y-4">
+        <form method="post" action="/admin/events" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Event Name *</label>
             <input type="text" name="name" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="e.g. 30 Minute Meeting" />
@@ -119,7 +119,7 @@ app.get("/:id", async (c) => {
     <Layout title={`Edit ${event.name}`}>
       <div class="max-w-xl mx-auto p-6">
         <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Event Type</h1>
-        <form method="POST" action={`/admin/events/${id}`} class="space-y-4">
+        <form method="post" action={`/admin/events/${id}`} class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Event Name</label>
             <input type="text" name="name" required value={event.name} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
@@ -164,7 +164,7 @@ app.get("/:id", async (c) => {
           </div>
         </form>
 
-        <form method="POST" action={`/admin/events/${id}/delete`} class="mt-8 pt-6 border-t border-gray-200">
+        <form method="post" action={`/admin/events/${id}/delete`} class="mt-8 pt-6 border-t border-gray-200">
           <button type="submit" class="text-red-500 text-sm hover:underline" onclick="return confirm('Delete this event type and all its bookings?')">
             Delete this event type
           </button>

@@ -12,7 +12,7 @@ app.get("/", async (c) => {
   const bookings = await BookingsService.listRecent(db);
 
   return c.html(
-    <Layout title="Admin - Calendly">
+    <Layout title="Admin - Mini Calendly">
       <div class="max-w-5xl mx-auto p-6">
         <div class="flex items-center justify-between mb-8">
           <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>

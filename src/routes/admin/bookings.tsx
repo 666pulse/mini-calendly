@@ -62,7 +62,7 @@ async function renderBookingsList(c: any, eventId?: number) {
         </div>
 
         {/* Filters */}
-        <form method="GET" action={baseUrl} class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
+        <form method="get" action={baseUrl} class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
           <div class="flex flex-wrap gap-3 items-end">
             {!eventId && (
               <div>
@@ -97,7 +97,7 @@ async function renderBookingsList(c: any, eventId?: number) {
         <div class="flex items-center justify-between mb-3">
           <span class="text-sm text-gray-500">{result.total} bookings found</span>
           {eventId && (
-            <form method="POST" action={`/admin/events/${eventId}/bookings/export.csv`}>
+            <form method="post" action={`/admin/events/${eventId}/bookings/export.csv`}>
               <input type="hidden" name="status" value={status || ""} />
               <input type="hidden" name="search" value={search || ""} />
               <button type="submit" class="border border-gray-300 text-gray-700 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50">
@@ -169,7 +169,7 @@ async function renderBookingsList(c: any, eventId?: number) {
         {/* Cancel dialogs */}
         {result.rows.filter((b) => b.status === "confirmed").map((b) => (
           <dialog id={`cancel-modal-${b.id}`} class="rounded-lg shadow-xl p-0 backdrop:bg-black/30">
-            <form method="POST" action={cancelUrl(b.event_type_id, b.id)} class="p-6 w-80">
+            <form method="post" action={cancelUrl(b.event_type_id, b.id)} class="p-6 w-80">
               <h3 class="font-semibold text-gray-900 mb-3">Cancel Booking</h3>
               <textarea name="reason" required rows={3} placeholder="Cancel reason..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4" />
               <div class="flex gap-2 justify-end">
@@ -310,7 +310,7 @@ async function renderBookingDetail(c: any, eventId: number, bookingId: number) {
         </div>
 
         <dialog id="cancel-modal-detail" class="rounded-lg shadow-xl p-0 backdrop:bg-black/30">
-          <form method="POST" action={cancelUrl(eventId, b.id)} class="p-6 w-96">
+          <form method="post" action={cancelUrl(eventId, b.id)} class="p-6 w-96">
             <h3 class="font-semibold text-gray-900 mb-3">Cancel Booking</h3>
             <p class="text-sm text-gray-500 mb-3">{b.event_name} &middot; {b.invitee_name}</p>
             <textarea name="reason" required rows={3} placeholder="Cancel reason..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4" />

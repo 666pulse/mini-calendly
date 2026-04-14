@@ -167,7 +167,7 @@ app.get("/:slug/book", async (c) => {
           {/* Right panel - Form */}
           <div class="flex-1 p-8">
             <h2 class="text-lg font-bold text-gray-900 mb-6">Enter Details</h2>
-            <form method="POST" action={`/${slug}/book`} class="space-y-4">
+            <form method="post" action={`/${slug}/book`} class="space-y-4">
               <input type="hidden" name="date" value={date} />
               <input type="hidden" name="time" value={time} />
 
