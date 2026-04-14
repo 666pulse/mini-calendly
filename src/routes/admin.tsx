@@ -3,17 +3,8 @@ import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 import { Layout } from "../components/Layout";
 import { CustomFieldsEditor } from "../components/CustomFieldsEditor";
+import { AvailabilityEditor } from "../components/AvailabilityEditor";
 import type { CustomField } from "../services/entities";
-
-const DAYS = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
 
 const app = new Hono();
 
@@ -178,19 +169,13 @@ app.get("/events/new", (c) => {
             </div>
           </div>
 
-          <fieldset class="border border-gray-200 rounded-md p-4">
-            <legend class="text-sm font-medium text-gray-700 px-1">Availability</legend>
-            <p class="text-xs text-gray-500 mb-3">Select days and set hours</p>
-            {DAYS.map((day, i) => (
-              <div class="flex items-center gap-3 mb-2">
-                <input type="checkbox" name={`day_${i}`} value="1" checked={i >= 0 && i <= 4} class="rounded" />
-                <span class="w-24 text-sm">{day}</span>
-                <input type="text" name={`start_${i}`} value="09:00" class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
-                <span class="text-gray-400">-</span>
-                <input type="text" name={`end_${i}`} value="17:00" class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
-              </div>
-            ))}
-          </fieldset>
+          <AvailabilityEditor data={{
+            0: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
+            1: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
+            2: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
+            3: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
+            4: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
+          }} />
 
           <CustomFieldsEditor fields={[]} />
 
@@ -221,14 +206,11 @@ app.post("/events", async (c) => {
     end_date: (body.end_date as string) || null,
   });
 
+  const availJson = JSON.parse((body.availability_json as string) || "{}");
   const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];
-  for (let i = 0; i < 7; i++) {
-    if (body[`day_${i}`]) {
-      slots.push({
-        day_of_week: i,
-        start_time: body[`start_${i}`] as string,
-        end_time: body[`end_${i}`] as string,
-      });
+  for (const [day, blocks] of Object.entries(availJson)) {
+    for (const block of blocks as { start_time: string; end_time: string }[]) {
+      slots.push({ day_of_week: Number(day), start_time: block.start_time, end_time: block.end_time });
     }
   }
   EventTypesService.replaceAvailability(eventTypeId, slots);
@@ -243,7 +225,11 @@ app.get("/events/:id", (c) => {
   if (!event) return c.redirect("/admin");
 
   const avails = EventTypesService.getAvailability(id);
-  const availMap = new Map(avails.map((a) => [a.day_of_week, a]));
+  const availData: Record<number, { start_time: string; end_time: string }[]> = {};
+  for (const a of avails) {
+    if (!availData[a.day_of_week]) availData[a.day_of_week] = [];
+    availData[a.day_of_week].push({ start_time: a.start_time, end_time: a.end_time });
+  }
 
   return c.html(
     <Layout title={`Edit ${event.name}`}>
@@ -282,21 +268,7 @@ app.get("/events/:id", (c) => {
             </div>
           </div>
 
-          <fieldset class="border border-gray-200 rounded-md p-4">
-            <legend class="text-sm font-medium text-gray-700 px-1">Availability</legend>
-            {DAYS.map((day, i) => {
-              const a = availMap.get(i);
-              return (
-                <div class="flex items-center gap-3 mb-2">
-                  <input type="checkbox" name={`day_${i}`} value="1" checked={!!a} class="rounded" />
-                  <span class="w-24 text-sm">{day}</span>
-                  <input type="text" name={`start_${i}`} value={a?.start_time || "09:00"} class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
-                  <span class="text-gray-400">-</span>
-                  <input type="text" name={`end_${i}`} value={a?.end_time || "17:00"} class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
-                </div>
-              );
-            })}
-          </fieldset>
+          <AvailabilityEditor data={availData} />
 
           <CustomFieldsEditor fields={JSON.parse(event.custom_fields || "[]") as CustomField[]} />
 
@@ -334,17 +306,14 @@ app.post("/events/:id", async (c) => {
     end_date: (body.end_date as string) || null,
   });
 
-  const slots: { day_of_week: number; start_time: string; end_time: string }[] = [];
-  for (let i = 0; i < 7; i++) {
-    if (body[`day_${i}`]) {
-      slots.push({
-        day_of_week: i,
-        start_time: body[`start_${i}`] as string,
-        end_time: body[`end_${i}`] as string,
-      });
+  const availJson2 = JSON.parse((body.availability_json as string) || "{}");
+  const slots2: { day_of_week: number; start_time: string; end_time: string }[] = [];
+  for (const [day, blocks] of Object.entries(availJson2)) {
+    for (const block of blocks as { start_time: string; end_time: string }[]) {
+      slots2.push({ day_of_week: Number(day), start_time: block.start_time, end_time: block.end_time });
     }
   }
-  EventTypesService.replaceAvailability(id, slots);
+  EventTypesService.replaceAvailability(id, slots2);
 
   return c.redirect("/admin");
 });
