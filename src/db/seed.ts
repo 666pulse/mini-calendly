@@ -1,0 +1,34 @@
+import { db, initDB } from "./index";
+
+initDB();
+
+// Seed event type
+const existing = db.query("SELECT id FROM event_types WHERE slug = ?").get("hacker-house-interview");
+if (!existing) {
+  const result = db.run(
+    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description)
+     VALUES (?, ?, ?, ?, ?)`,
+    [
+      "hacker-house-interview",
+      "Hacker House 面试",
+      "Rebase Team",
+      30,
+      "Web conferencing details provided upon confirmation.",
+    ]
+  );
+
+  const eventTypeId = Number(result.lastInsertRowid);
+
+  // Monday to Friday, 9:00-17:00
+  for (let day = 1; day <= 5; day++) {
+    db.run(
+      `INSERT INTO availability (event_type_id, day_of_week, start_time, end_time)
+       VALUES (?, ?, ?, ?)`,
+      [eventTypeId, day, "09:00", "17:00"]
+    );
+  }
+
+  console.log("Seed data created successfully");
+} else {
+  console.log("Seed data already exists");
+}
