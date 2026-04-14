@@ -10,6 +10,7 @@ export function Layout({ title, children }: { title: string; children: Child }) 
         <script src="https://cdn.tailwindcss.com"></script>
         <style>{`
           body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+          dialog { margin: auto; }
         `}</style>
       </head>
       <body class="bg-gray-50 min-h-screen">

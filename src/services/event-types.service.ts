@@ -1,5 +1,6 @@
 import type { DbAdapter } from "../db/adapter";
 import type { EventType, Availability } from "./entities";
+import { emitAfterCreate, emitAfterUpdate } from "../lib/hooks";
 
 export async function findBySlug(db: DbAdapter, slug: string) {
   return db.get<EventType>("SELECT * FROM event_types WHERE slug = ?", [slug]);
@@ -30,6 +31,7 @@ export async function create(
     `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.start_date, data.end_date]
   );
+  await emitAfterCreate(db, "event_types", result.lastInsertRowid);
   return result.lastInsertRowid;
 }
 
@@ -48,9 +50,10 @@ export async function update(
   }
 ) {
   await db.run(
-    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, start_date = ?, end_date = ?, updated_at = datetime('now') WHERE id = ?`,
+    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, start_date = ?, end_date = ? WHERE id = ?`,
     [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.start_date, data.end_date, id]
   );
+  await emitAfterUpdate(db, "event_types", id);
 }
 
 export async function remove(db: DbAdapter, id: number) {

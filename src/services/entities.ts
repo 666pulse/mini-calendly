@@ -18,6 +18,8 @@ export interface CustomField {
   required: boolean;
 }
 
+export type BookingStatus = "confirmed" | "cancelled";
+
 export interface Booking {
   id: number;
   event_type_id: number;
@@ -27,7 +29,8 @@ export interface Booking {
   end_time: string;
   timezone: string;
   notes: string;
-  status: string;
+  status: BookingStatus;
+  cancel_reason: string;
   custom_data: string; // JSON: Record<string, string>
   created_at: string;
 }

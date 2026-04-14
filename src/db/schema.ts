@@ -40,7 +40,8 @@ export async function initSchema(db: DbAdapter) {
       end_time TEXT NOT NULL,
       timezone TEXT NOT NULL DEFAULT 'Asia/Singapore',
       notes TEXT DEFAULT '',
-      status TEXT DEFAULT 'confirmed',
+      status TEXT DEFAULT 'confirmed' CHECK(status IN ('confirmed', 'cancelled')),
+      cancel_reason TEXT DEFAULT '',
       custom_data TEXT DEFAULT '{}',
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
@@ -73,6 +74,9 @@ export async function initSchema(db: DbAdapter) {
   }
   if (!bCols.find((c) => c.name === "updated_at")) {
     await db.run("ALTER TABLE bookings ADD COLUMN updated_at TEXT");
+  }
+  if (!bCols.find((c) => c.name === "cancel_reason")) {
+    await db.run("ALTER TABLE bookings ADD COLUMN cancel_reason TEXT DEFAULT ''");
   }
 
   const aCols = await db.all<{ name: string }>("PRAGMA table_info(availability)");

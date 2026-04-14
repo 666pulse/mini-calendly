@@ -1,5 +1,6 @@
 import type { DbAdapter } from "../db/adapter";
 import type { Booking, BookingWithEvent } from "./entities";
+import { emitAfterCreate, emitAfterUpdate } from "../lib/hooks";
 
 export async function listRecent(db: DbAdapter, limit = 50) {
   return db.all<BookingWithEvent>(
@@ -108,9 +109,16 @@ export async function create(
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes, data.custom_data]
   );
+  await emitAfterCreate(db, "bookings", result.lastInsertRowid);
   return result.lastInsertRowid;
 }
 
-export async function cancel(db: DbAdapter, id: number) {
-  await db.run("UPDATE bookings SET status = 'cancelled', updated_at = datetime('now') WHERE id = ?", [id]);
+export async function cancel(db: DbAdapter, id: number, reason: string = "") {
+  await db.run("UPDATE bookings SET status = 'cancelled', cancel_reason = ? WHERE id = ?", [reason, id]);
+  await emitAfterUpdate(db, "bookings", id);
+}
+
+export async function confirm(db: DbAdapter, id: number) {
+  await db.run("UPDATE bookings SET status = 'confirmed' WHERE id = ?", [id]);
+  await emitAfterUpdate(db, "bookings", id);
 }
