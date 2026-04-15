@@ -7,7 +7,7 @@ import type { CustomField } from "../services/entities";
 import { Layout } from "../components/Layout";
 import { Calendar } from "../components/Calendar";
 import { TimeSlots } from "../components/TimeSlots";
-import { getAvailableDates, getAvailableSlots } from "../lib/availability";
+import { getAvailableDates, getAvailableSlots, DEFAULT_TZ } from "../lib/availability";
 
 const app = new Hono<Env>();
 
@@ -73,9 +73,9 @@ app.get("/:slug", async (c) => {
     );
   }
 
-  const now = new Date();
-  const year = Number(c.req.query("year")) || now.getFullYear();
-  const month = Number(c.req.query("month")) || now.getMonth() + 1;
+  const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const year = Number(c.req.query("year")) || now.getUTCFullYear();
+  const month = Number(c.req.query("month")) || now.getUTCMonth() + 1;
   const selectedDate = c.req.query("date") ? Number(c.req.query("date")) : undefined;
 
   const availableDates = await getAvailableDates(db, event.id, year, month, event.start_date, event.end_date);
@@ -92,11 +92,12 @@ app.get("/:slug", async (c) => {
     ? new Date(year, month - 1, selectedDate)
     : null;
   const dateLabel = selectedDateObj
-    ? selectedDateObj.toLocaleDateString("en-US", {
+    ? selectedDateObj.toLocaleDateString("zh-CN", {
         weekday: "long",
         month: "long",
         day: "numeric",
         year: "numeric",
+        timeZone: DEFAULT_TZ,
       })
     : null;
 
@@ -124,7 +125,7 @@ app.get("/:slug", async (c) => {
                     <circle cx="12" cy="12" r="10" stroke-width="2" />
                     <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
                   </svg>
-                  {event.duration_minutes} min
+                  {event.duration_minutes} 分钟
                 </div>
                 {event.description && (
                   <div class="flex items-start text-slate-500 text-sm">
@@ -199,11 +200,12 @@ app.get("/:slug/book", async (c) => {
   const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
 
   const dateObj = new Date(date + "T00:00:00");
-  const dateLabel = dateObj.toLocaleDateString("en-US", {
+  const dateLabel = dateObj.toLocaleDateString("zh-CN", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: DEFAULT_TZ,
   });
 
   return c.html(
@@ -452,11 +454,12 @@ app.get("/:slug/confirmed", async (c) => {
   const endTimeStr = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
 
   const dateObj = new Date(date + "T00:00:00");
-  const dateLabel = dateObj.toLocaleDateString("en-US", {
+  const dateLabel = dateObj.toLocaleDateString("zh-CN", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: DEFAULT_TZ,
   });
 
   return c.html(

@@ -2,6 +2,14 @@ import type { DbAdapter } from "../db/adapter";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 
+export const DEFAULT_TZ = "Asia/Singapore";
+const TZ_OFFSET_MS = 8 * 60 * 60 * 1000; // UTC+8
+
+/** Get "now" in the default timezone */
+function nowInTZ(): Date {
+  return new Date(Date.now() + TZ_OFFSET_MS);
+}
+
 export interface TimeSlot {
   start: string; // HH:mm
   end: string;
@@ -73,18 +81,18 @@ export async function getAvailableDates(
   const dates: number[] = [];
 
   const daysInMonth = new Date(year, month, 0).getDate();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const now = nowInTZ();
+  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
-  const rangeStart = startDate ? new Date(startDate + "T00:00:00") : null;
-  const rangeEnd = endDate ? new Date(endDate + "T23:59:59") : null;
+  const rangeStart = startDate ? new Date(startDate + "T00:00:00Z") : null;
+  const rangeEnd = endDate ? new Date(endDate + "T23:59:59Z") : null;
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month - 1, day);
+    const date = new Date(Date.UTC(year, month - 1, day));
     if (date < today) continue;
     if (rangeStart && date < rangeStart) continue;
     if (rangeEnd && date > rangeEnd) continue;
-    if (availableDays.has(date.getDay())) {
+    if (availableDays.has(date.getUTCDay())) {
       dates.push(day);
     }
   }

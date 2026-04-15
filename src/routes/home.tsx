@@ -118,7 +118,7 @@ app.get("/", async (c) => {
                         <circle cx="12" cy="12" r="10" stroke-width="2" />
                         <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
                       </svg>
-                      {event.duration_minutes} min
+                      {event.duration_minutes} 分钟
                     </span>
                     <svg
                       class="w-5 h-5 text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-0.5 transition-all"

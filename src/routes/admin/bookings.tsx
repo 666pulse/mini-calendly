@@ -214,8 +214,12 @@ async function renderBookingDetail(c: any, eventId: number, bookingId: number) {
   const customData: Record<string, string> = JSON.parse(b.custom_data || "{}");
 
   const dateObj = new Date(b.start_time);
-  const dateLabel = dateObj.toLocaleDateString("en-US", {
-    weekday: "long", month: "long", day: "numeric", year: "numeric",
+  const dateLabel = dateObj.toLocaleDateString("zh-CN", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Asia/Singapore",
   });
   const startTime = b.start_time.split("T")[1]?.replace(":00", "") || "";
   const endTime = b.end_time.split("T")[1]?.replace(":00", "") || "";
