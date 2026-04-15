@@ -102,12 +102,15 @@ export async function create(
     end_time: string;
     notes: string;
     custom_data: string;
+    meeting_id?: string;
+    meeting_code?: string;
+    meeting_url?: string;
   }
 ) {
   const result = await db.run(
-    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes, custom_data)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes, data.custom_data]
+    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes, custom_data, meeting_id, meeting_code, meeting_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes, data.custom_data, data.meeting_id || "", data.meeting_code || "", data.meeting_url || ""]
   );
   await emitAfterCreate(db, "bookings", result.lastInsertRowid);
   return result.lastInsertRowid;

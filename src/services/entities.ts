@@ -7,6 +7,8 @@ export interface EventType {
   description: string;
   color: string;
   custom_fields: string; // JSON: CustomField[]
+  meeting_provider: string; // 'none' | 'static' | 'tencent'
+  meeting_url: string;     // static URL or auto-generated
   start_date: string | null; // YYYY-MM-DD
   end_date: string | null;   // YYYY-MM-DD
   created_at: string;
@@ -31,6 +33,9 @@ export interface Booking {
   notes: string;
   status: BookingStatus;
   cancel_reason: string;
+  meeting_id: string;
+  meeting_code: string;
+  meeting_url: string;
   custom_data: string; // JSON: Record<string, string>
   created_at: string;
 }

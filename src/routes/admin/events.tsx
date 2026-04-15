@@ -39,6 +39,18 @@ app.get("/new", (c) => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea name="description" rows={2} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Provider</label>
+            <select name="meeting_provider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
+              <option value="none">None</option>
+              <option value="tencent">Tencent Meeting (auto-create)</option>
+              <option value="static">Static URL (Google Meet, Zoom, etc.)</option>
+            </select>
+          </div>
+          <div id="meeting-url-row-new" style="display:none">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting URL</label>
+            <input type="url" name="meeting_url" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+          </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -85,6 +97,8 @@ app.post("/", async (c) => {
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
     custom_fields: (body.custom_fields_json as string) || "[]",
+    meeting_provider: (body.meeting_provider as string) || "none",
+    meeting_url: (body.meeting_url as string) || "",
     start_date: (body.start_date as string) || null,
     end_date: (body.end_date as string) || null,
   });
@@ -140,6 +154,18 @@ app.get("/:id", async (c) => {
             <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea name="description" rows={2} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">{event.description}</textarea>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Provider</label>
+            <select name="meeting_provider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" id="meeting-provider-edit" onchange="document.getElementById('meeting-url-row-edit').style.display = this.value === 'static' ? '' : 'none'">
+              <option value="none" selected={event.meeting_provider === "none" || !event.meeting_provider}>None</option>
+              <option value="tencent" selected={event.meeting_provider === "tencent"}>Tencent Meeting (auto-create)</option>
+              <option value="static" selected={event.meeting_provider === "static"}>Static URL (Google Meet, Zoom, etc.)</option>
+            </select>
+          </div>
+          <div id="meeting-url-row-edit" style={event.meeting_provider === "static" ? "" : "display:none"}>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting URL</label>
+            <input type="url" name="meeting_url" value={event.meeting_url || ""} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+          </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
@@ -187,6 +213,8 @@ app.post("/:id", async (c) => {
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
     custom_fields: (body.custom_fields_json as string) || "[]",
+    meeting_provider: (body.meeting_provider as string) || "none",
+    meeting_url: (body.meeting_url as string) || "",
     start_date: (body.start_date as string) || null,
     end_date: (body.end_date as string) || null,
   });

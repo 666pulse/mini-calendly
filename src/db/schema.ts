@@ -11,6 +11,8 @@ export async function initSchema(db: DbAdapter) {
       description TEXT DEFAULT '',
       color TEXT DEFAULT '#0069ff',
       custom_fields TEXT DEFAULT '[]',
+      meeting_provider TEXT DEFAULT 'none',
+      meeting_url TEXT DEFAULT '',
       start_date TEXT,
       end_date TEXT,
       created_at TEXT DEFAULT (datetime('now')),
@@ -42,6 +44,9 @@ export async function initSchema(db: DbAdapter) {
       notes TEXT DEFAULT '',
       status TEXT DEFAULT 'confirmed' CHECK(status IN ('confirmed', 'cancelled')),
       cancel_reason TEXT DEFAULT '',
+      meeting_id TEXT DEFAULT '',
+      meeting_code TEXT DEFAULT '',
+      meeting_url TEXT DEFAULT '',
       custom_data TEXT DEFAULT '{}',
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
@@ -67,6 +72,12 @@ export async function initSchema(db: DbAdapter) {
   if (!etCols.find((c) => c.name === "updated_at")) {
     await db.run("ALTER TABLE event_types ADD COLUMN updated_at TEXT");
   }
+  if (!etCols.find((c) => c.name === "meeting_url")) {
+    await db.run("ALTER TABLE event_types ADD COLUMN meeting_url TEXT DEFAULT ''");
+  }
+  if (!etCols.find((c) => c.name === "meeting_provider")) {
+    await db.run("ALTER TABLE event_types ADD COLUMN meeting_provider TEXT DEFAULT 'none'");
+  }
 
   const bCols = await db.all<{ name: string }>("PRAGMA table_info(bookings)");
   if (!bCols.find((c) => c.name === "custom_data")) {
@@ -77,6 +88,15 @@ export async function initSchema(db: DbAdapter) {
   }
   if (!bCols.find((c) => c.name === "cancel_reason")) {
     await db.run("ALTER TABLE bookings ADD COLUMN cancel_reason TEXT DEFAULT ''");
+  }
+  if (!bCols.find((c) => c.name === "meeting_id")) {
+    await db.run("ALTER TABLE bookings ADD COLUMN meeting_id TEXT DEFAULT ''");
+  }
+  if (!bCols.find((c) => c.name === "meeting_code")) {
+    await db.run("ALTER TABLE bookings ADD COLUMN meeting_code TEXT DEFAULT ''");
+  }
+  if (!bCols.find((c) => c.name === "meeting_url")) {
+    await db.run("ALTER TABLE bookings ADD COLUMN meeting_url TEXT DEFAULT ''");
   }
 
   const aCols = await db.all<{ name: string }>("PRAGMA table_info(availability)");

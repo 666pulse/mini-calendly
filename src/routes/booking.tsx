@@ -1,7 +1,8 @@
 import { Hono } from "hono";
-import type { Env } from "../app";
+import { type Env, getEnvVar } from "../app";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
+import * as TencentMeetingService from "../services/tencent-meeting.service";
 import type { CustomField } from "../services/entities";
 import { Layout } from "../components/Layout";
 import { Calendar } from "../components/Calendar";
@@ -79,6 +80,14 @@ app.get("/:slug", async (c) => {
                   <path d="M8 7h8M8 11h8M8 15h4" stroke-width="2" stroke-linecap="round" />
                 </svg>
                 {event.description}
+              </div>
+            )}
+            {event.meeting_url && (
+              <div class="flex items-center text-gray-500 text-sm">
+                <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Web conferencing details provided upon confirmation.
               </div>
             )}
           </div>
@@ -281,6 +290,34 @@ app.post("/:slug/book", async (c) => {
     );
   }
 
+  // Create meeting if provider is configured
+  let meetingId = "";
+  let meetingCode = "";
+  let meetingUrl = "";
+
+  if (event.meeting_provider === "tencent") {
+    const token = getEnvVar(c, "TENCENT_MEETING_TOKEN");
+    if (token) {
+      try {
+        const isoStart = `${date}T${time}:00+08:00`;
+        const isoEnd = `${date}T${endTimeStr}:00+08:00`;
+        const meeting = await TencentMeetingService.createMeeting(
+          token,
+          `${event.name} - ${name}`,
+          isoStart,
+          isoEnd
+        );
+        meetingId = meeting.meeting_id;
+        meetingCode = meeting.meeting_code;
+        meetingUrl = meeting.join_url;
+      } catch (e) {
+        console.error("Failed to create Tencent Meeting:", e);
+      }
+    }
+  } else if (event.meeting_provider === "static" && event.meeting_url) {
+    meetingUrl = event.meeting_url;
+  }
+
   await BookingsService.create(db, {
     event_type_id: event.id,
     invitee_name: name,
@@ -289,6 +326,9 @@ app.post("/:slug/book", async (c) => {
     end_time: endTime,
     notes,
     custom_data: JSON.stringify(customData),
+    meeting_id: meetingId,
+    meeting_code: meetingCode,
+    meeting_url: meetingUrl,
   });
 
   return c.redirect(`/${slug}/confirmed?date=${date}&time=${time}&name=${encodeURIComponent(name)}`);
@@ -304,6 +344,14 @@ app.get("/:slug/confirmed", async (c) => {
   const date = c.req.query("date") || "";
   const time = c.req.query("time") || "";
   const name = c.req.query("name") || "";
+
+  // Look up the booking to get meeting URL
+  const startTimeISO = `${date}T${time}:00`;
+  const latestBooking = await db.get<{ meeting_url: string }>(
+    "SELECT meeting_url FROM bookings WHERE event_type_id = ? AND start_time = ? ORDER BY id DESC LIMIT 1",
+    [event.id, startTimeISO]
+  );
+  const bookingMeetingUrl = latestBooking?.meeting_url || event.meeting_url || "";
 
   const [startH, startM] = time.split(":").map(Number);
   const endMinutes = startH * 60 + startM + event.duration_minutes;
@@ -346,6 +394,14 @@ app.get("/:slug/confirmed", async (c) => {
                 {event.host_name} and {name}
               </p>
             </div>
+            {bookingMeetingUrl && (
+              <div>
+                <p class="text-sm text-gray-500">Where</p>
+                <a href={bookingMeetingUrl} target="_blank" class="font-medium text-blue-600 hover:underline">
+                  Join Meeting
+                </a>
+              </div>
+            )}
           </div>
 
           <a

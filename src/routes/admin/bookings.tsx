@@ -1,7 +1,8 @@
 import { Hono } from "hono";
-import type { Env } from "../../app";
+import { type Env, getEnvVar } from "../../app";
 import * as EventTypesService from "../../services/event-types.service";
 import * as BookingsService from "../../services/bookings.service";
+import * as TencentMeetingService from "../../services/tencent-meeting.service";
 import { Layout } from "../../components/Layout";
 import type { CustomField } from "../../services/entities";
 
@@ -272,6 +273,18 @@ async function renderBookingDetail(c: any, eventId: number, bookingId: number) {
             <p class="text-sm text-gray-500">{b.invitee_email}</p>
           </div>
 
+          {b.meeting_url && (
+            <div class="border-b border-gray-100 pb-4">
+              <h2 class="text-sm font-medium text-gray-500 mb-2">Meeting</h2>
+              <a href={b.meeting_url} target="_blank" class="text-blue-600 hover:underline text-sm">
+                {b.meeting_url}
+              </a>
+              {b.meeting_code && (
+                <p class="text-sm text-gray-400 mt-1">Code: {b.meeting_code}</p>
+              )}
+            </div>
+          )}
+
           {customFields.length > 0 && (
             <div class="border-b border-gray-100 pb-4">
               <h2 class="text-sm font-medium text-gray-500 mb-2">Additional Info</h2>
@@ -372,7 +385,7 @@ nestedBookings.post("/export.csv", async (c) => {
   const customFields: CustomField[] = JSON.parse(event.custom_fields || "[]");
 
   // CSV header
-  const headers = ["ID", "Name", "Email", "Date", "Start", "End", "Status", "Notes", "Cancel Reason"];
+  const headers = ["ID", "Name", "Email", "Date", "Start", "End", "Status", "Meeting URL", "Notes", "Cancel Reason"];
   for (const f of customFields) {
     headers.push(f.label);
   }
@@ -401,6 +414,7 @@ nestedBookings.post("/export.csv", async (c) => {
       start,
       end,
       b.status,
+      b.meeting_url || "",
       b.notes || "",
       b.cancel_reason || "",
     ];
@@ -435,6 +449,20 @@ nestedBookings.post("/:id/cancel", async (c) => {
   const id = Number(c.req.param("id"));
   const body = await c.req.parseBody();
   const reason = (body.reason as string) || "";
+
+  // Cancel Tencent Meeting if applicable
+  const booking = await BookingsService.findById(db, id);
+  if (booking?.meeting_id) {
+    const token = getEnvVar(c, "TENCENT_MEETING_TOKEN");
+    if (token) {
+      try {
+        await TencentMeetingService.cancelMeeting(token, booking.meeting_id);
+      } catch (e) {
+        console.error("Failed to cancel Tencent Meeting:", e);
+      }
+    }
+  }
+
   await BookingsService.cancel(db, id, reason);
   return c.redirect(c.req.header("Referer") || "/admin");
 });

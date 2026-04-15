@@ -9,11 +9,16 @@ export type Env = {
   Bindings: {
     ADMIN_USER?: string;
     ADMIN_PASS?: string;
+    TENCENT_MEETING_TOKEN?: string;
   };
   Variables: {
     db: DbAdapter;
   };
 };
+
+export function getEnvVar(c: any, key: string, fallback = ""): string {
+  return c.env?.[key] || (typeof process !== "undefined" ? process.env[key] : undefined) || fallback;
+}
 
 export function createApp(getDb: (c: any) => DbAdapter) {
   const app = new Hono<Env>({ strict: false });
@@ -24,22 +29,18 @@ export function createApp(getDb: (c: any) => DbAdapter) {
     await next();
   });
 
-  // Admin auth — reads from env bindings (CF) or process.env (Bun)
-  const getEnv = (c: any, key: string, fallback: string) => {
-    return c.env?.[key] || (typeof process !== "undefined" ? process.env[key] : undefined) || fallback;
-  };
-
+  // Admin auth
   app.use("/admin", async (c, next) => {
     const auth = basicAuth({
-      username: getEnv(c, "ADMIN_USER", "admin"),
-      password: getEnv(c, "ADMIN_PASS", "admin"),
+      username: getEnvVar(c, "ADMIN_USER", "admin"),
+      password: getEnvVar(c, "ADMIN_PASS", "admin"),
     });
     return auth(c, next);
   });
   app.use("/admin/*", async (c, next) => {
     const auth = basicAuth({
-      username: getEnv(c, "ADMIN_USER", "admin"),
-      password: getEnv(c, "ADMIN_PASS", "admin"),
+      username: getEnvVar(c, "ADMIN_USER", "admin"),
+      password: getEnvVar(c, "ADMIN_PASS", "admin"),
     });
     return auth(c, next);
   });
