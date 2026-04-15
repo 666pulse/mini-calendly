@@ -12,7 +12,7 @@ export function TimeSlots({
   if (slots.length === 0) {
     return (
       <div class="text-slate-500 text-sm text-center py-8">
-        No available times for this date.
+        该日期暂无可用时段。
       </div>
     );
   }

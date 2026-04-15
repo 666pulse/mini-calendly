@@ -28,7 +28,7 @@ app.get("/", async (c) => {
               href="/admin"
               class="text-sm text-slate-500 hover:text-slate-900 transition-colors"
             >
-              Admin
+              管理后台
             </a>
           </div>
         </header>
@@ -47,13 +47,13 @@ app.get("/", async (c) => {
             <div class="max-w-2xl">
               <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-full px-3 py-1 mb-4">
                 <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span class="text-xs font-medium text-indigo-100">{events.length} events available</span>
+                <span class="text-xs font-medium text-indigo-100">{events.length} 个活动可预约</span>
               </div>
               <h1 class="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight mb-2">
-                Book a Time, Build the Future Together
+                预约时间，共建未来
               </h1>
               <p class="text-sm md:text-base text-indigo-200 leading-relaxed max-w-lg">
-                Schedule meetings with our team. Pick an event below, choose a time that works.
+                选择下方活动，挑选合适的时间，轻松完成预约。
               </p>
             </div>
           </div>
@@ -64,8 +64,8 @@ app.get("/", async (c) => {
           {/* Section header */}
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h2 class="text-lg font-semibold text-slate-900">Browse Events</h2>
-              <p class="text-sm text-slate-500 mt-0.5">Choose an event type to schedule</p>
+              <h2 class="text-lg font-semibold text-slate-900">浏览活动</h2>
+              <p class="text-sm text-slate-500 mt-0.5">选择一个活动类型进行预约</p>
             </div>
           </div>
 
@@ -77,8 +77,8 @@ app.get("/", async (c) => {
                   <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
-              <p class="text-lg font-semibold text-slate-900 mb-1">No events yet</p>
-              <p class="text-sm text-slate-500">Check back soon or contact the organizer.</p>
+              <p class="text-lg font-semibold text-slate-900 mb-1">暂无活动</p>
+              <p class="text-sm text-slate-500">请稍后再来或联系组织者。</p>
             </div>
           ) : (
             <div class="bg-white rounded-xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
@@ -146,8 +146,8 @@ app.get("/", async (c) => {
                 <span class="text-sm font-bold text-indigo-600">1</span>
               </div>
               <div>
-                <h3 class="text-sm font-semibold text-slate-900">Pick an Event</h3>
-                <p class="text-sm text-slate-500 mt-0.5">Choose the meeting type that fits your needs</p>
+                <h3 class="text-sm font-semibold text-slate-900">选择活动</h3>
+                <p class="text-sm text-slate-500 mt-0.5">选择适合你的会议类型</p>
               </div>
             </div>
             <div class="flex items-start gap-4">
@@ -155,8 +155,8 @@ app.get("/", async (c) => {
                 <span class="text-sm font-bold text-indigo-600">2</span>
               </div>
               <div>
-                <h3 class="text-sm font-semibold text-slate-900">Select a Time</h3>
-                <p class="text-sm text-slate-500 mt-0.5">Pick a date and time from the available slots</p>
+                <h3 class="text-sm font-semibold text-slate-900">选择时间</h3>
+                <p class="text-sm text-slate-500 mt-0.5">从可用时段中选择日期和时间</p>
               </div>
             </div>
             <div class="flex items-start gap-4">
@@ -164,8 +164,8 @@ app.get("/", async (c) => {
                 <span class="text-sm font-bold text-indigo-600">3</span>
               </div>
               <div>
-                <h3 class="text-sm font-semibold text-slate-900">You're All Set</h3>
-                <p class="text-sm text-slate-500 mt-0.5">Receive a confirmation with meeting details</p>
+                <h3 class="text-sm font-semibold text-slate-900">预约完成</h3>
+                <p class="text-sm text-slate-500 mt-0.5">收到包含会议详情的确认通知</p>
               </div>
             </div>
           </div>
@@ -184,7 +184,7 @@ app.get("/", async (c) => {
               <span class="text-sm font-medium text-slate-900">Mini Calendly</span>
             </div>
             <span class="text-xs text-slate-400">
-              &copy; {new Date().getFullYear()} Rebase Community. All rights reserved.
+              &copy; {new Date().getFullYear()} Rebase Community. 保留所有权利。
             </span>
           </div>
         </footer>

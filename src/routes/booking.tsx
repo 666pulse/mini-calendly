@@ -39,7 +39,7 @@ function BookingFooter() {
     <footer class="border-t border-slate-200/60 bg-white/50">
       <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-center">
         <span class="text-xs text-slate-400">
-          Powered by <span class="font-medium text-slate-500">Mini Calendly</span>
+          由 <span class="font-medium text-slate-500">Mini Calendly</span> 提供服务
         </span>
       </div>
     </footer>
@@ -63,9 +63,9 @@ app.get("/:slug", async (c) => {
                 <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" stroke-width="2" stroke-linecap="round" />
               </svg>
             </div>
-            <h1 class="text-xl font-bold text-slate-900 mb-2">Event not found</h1>
-            <p class="text-sm text-slate-500 mb-4">This event may have been removed or the link is incorrect.</p>
-            <a href="/" class="text-indigo-600 text-sm font-medium hover:underline">Browse all events</a>
+            <h1 class="text-xl font-bold text-slate-900 mb-2">未找到活动</h1>
+            <p class="text-sm text-slate-500 mb-4">该活动可能已被移除或链接有误。</p>
+            <a href="/" class="text-indigo-600 text-sm font-medium hover:underline">浏览所有活动</a>
           </div>
         </div>
       </Layout>,
@@ -140,7 +140,7 @@ app.get("/:slug", async (c) => {
                     <svg class="w-4 h-4 mr-2.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                    Web conferencing details upon confirmation.
+                    确认后将提供视频会议信息。
                   </div>
                 )}
               </div>
@@ -148,7 +148,7 @@ app.get("/:slug", async (c) => {
 
             {/* Right panel - Calendar + Time slots */}
             <div class="flex-1 p-8">
-              <h2 class="text-lg font-bold text-slate-900 mb-6">Select a Date & Time</h2>
+              <h2 class="text-lg font-bold text-slate-900 mb-6">选择日期和时间</h2>
 
               <div class="flex gap-8">
                 <div class="flex-1">
@@ -209,7 +209,7 @@ app.get("/:slug/book", async (c) => {
   return c.html(
     <Layout title={`Book ${event.name}`}>
       <div class="flex flex-col min-h-screen">
-        <BookingHeader title="Confirm your booking" />
+        <BookingHeader title="确认预约信息" />
 
         <div class="flex-1 flex items-center justify-center p-4 md:p-8">
           <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
@@ -244,24 +244,24 @@ app.get("/:slug/book", async (c) => {
 
             {/* Right panel - Form */}
             <div class="flex-1 p-8">
-              <h2 class="text-lg font-bold text-slate-900 mb-6">Enter Details</h2>
+              <h2 class="text-lg font-bold text-slate-900 mb-6">填写信息</h2>
               <form method="post" action={`/${slug}/book`} class="space-y-4">
                 <input type="hidden" name="date" value={date} />
                 <input type="hidden" name="time" value={time} />
 
                 <div>
-                  <label class="block text-sm font-medium text-slate-600 mb-1.5">Name *</label>
+                  <label class="block text-sm font-medium text-slate-600 mb-1.5">姓名 *</label>
                   <input
                     type="text"
                     name="name"
                     required
                     class="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                    placeholder="Your name"
+                    placeholder="你的姓名"
                   />
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-slate-600 mb-1.5">Email *</label>
+                  <label class="block text-sm font-medium text-slate-600 mb-1.5">邮箱 *</label>
                   <input
                     type="email"
                     name="email"
@@ -272,12 +272,12 @@ app.get("/:slug/book", async (c) => {
                 </div>
 
                 <div>
-                  <label class="block text-sm font-medium text-slate-600 mb-1.5">Notes</label>
+                  <label class="block text-sm font-medium text-slate-600 mb-1.5">备注</label>
                   <textarea
                     name="notes"
                     rows={3}
                     class="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                    placeholder="Please share anything that will help prepare for our meeting."
+                    placeholder="请分享任何有助于会议准备的信息。"
                   />
                 </div>
 
@@ -301,15 +301,15 @@ app.get("/:slug/book", async (c) => {
                     type="submit"
                     id="submit-btn"
                     class="bg-indigo-600 text-white px-6 py-2.5 rounded-lg text-sm font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
-                    onclick="this.disabled=true;this.textContent='Scheduling...';this.form.submit()"
+                    onclick="this.disabled=true;this.textContent='预约中...';this.form.submit()"
                   >
-                    Schedule Event
+                    确认预约
                   </button>
                   <a
                     href={`/${slug}?year=${dateObj.getFullYear()}&month=${dateObj.getMonth() + 1}&date=${dateObj.getDate()}`}
                     class="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
                   >
-                    Back
+                    返回
                   </a>
                 </div>
               </form>
@@ -363,10 +363,10 @@ app.post("/:slug/book", async (c) => {
                   <path d="M15 9l-6 6M9 9l6 6" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
-              <h1 class="text-xl font-bold text-slate-900 mb-2">Time No Longer Available</h1>
-              <p class="text-slate-500 text-sm mb-6">This time slot was just booked by someone else. Please select another time.</p>
+              <h1 class="text-xl font-bold text-slate-900 mb-2">该时间已被预约</h1>
+              <p class="text-slate-500 text-sm mb-6">该时段刚刚被其他人预约，请选择其他时间。</p>
               <a href={`/${slug}`} class="inline-flex items-center justify-center bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all shadow-sm">
-                Back to calendar
+                返回日历
               </a>
             </div>
           </div>
@@ -484,11 +484,8 @@ app.get("/:slug/confirmed", async (c) => {
                 </svg>
               </div>
               <h1 class="text-2xl font-bold text-slate-900 mb-2">
-                You are scheduled
+                预约成功
               </h1>
-              <p class="text-slate-500 text-sm">
-                A calendar invitation has been sent to your email.
-              </p>
             </div>
 
             {meetingFailed && (
@@ -498,8 +495,7 @@ app.get("/:slug/confirmed", async (c) => {
                     <path d="M12 9v2m0 4h.01M12 2l10 18H2L12 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                   <p class="text-sm text-amber-800">
-                    Meeting link could not be generated. The host will share the
-                    meeting details with you separately.
+                    会议链接生成失败，主持人将另行分享会议信息。
                   </p>
                 </div>
               </div>
@@ -515,7 +511,7 @@ app.get("/:slug/confirmed", async (c) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">What</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">活动</p>
                   <p class="font-medium text-slate-900 mt-0.5">{event.name}</p>
                 </div>
               </div>
@@ -527,7 +523,7 @@ app.get("/:slug/confirmed", async (c) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">When</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">时间</p>
                   <p class="font-medium text-slate-900 mt-0.5">{time} - {endTimeStr}, {dateLabel}</p>
                 </div>
               </div>
@@ -539,7 +535,7 @@ app.get("/:slug/confirmed", async (c) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">Who</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">参与人</p>
                   <p class="font-medium text-slate-900 mt-0.5">{event.host_name} and {name}</p>
                 </div>
               </div>
@@ -551,7 +547,7 @@ app.get("/:slug/confirmed", async (c) => {
                     </svg>
                   </div>
                   <div>
-                    <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">Where</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">会议地点</p>
                     <a
                       href={bookingMeetingUrl}
                       target="_blank"
@@ -560,7 +556,7 @@ app.get("/:slug/confirmed", async (c) => {
                       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
-                      Join Meeting
+                      加入会议
                     </a>
                   </div>
                 </div>
@@ -574,7 +570,7 @@ app.get("/:slug/confirmed", async (c) => {
                   href={manageUrl}
                   class="text-indigo-600 text-sm font-medium hover:underline"
                 >
-                  Manage booking
+                  管理预约
                 </a>
               )}
               {manageUrl && (
@@ -584,7 +580,7 @@ app.get("/:slug/confirmed", async (c) => {
                 href={`/${slug}`}
                 class="text-slate-500 text-sm hover:text-slate-900 transition-colors"
               >
-                Schedule another
+                再次预约
               </a>
             </div>
           </div>
@@ -614,8 +610,8 @@ app.get("/:slug/manage/:token", async (c) => {
                   <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
-              <h1 class="text-xl font-bold text-slate-900 mb-2">Booking not found</h1>
-              <p class="text-sm text-slate-500">This link may have expired or is invalid.</p>
+              <h1 class="text-xl font-bold text-slate-900 mb-2">未找到预约</h1>
+              <p class="text-sm text-slate-500">该链接可能已过期或无效。</p>
             </div>
           </div>
           <BookingFooter />
@@ -635,7 +631,7 @@ app.get("/:slug/manage/:token", async (c) => {
   return c.html(
     <Layout title="Manage Booking">
       <div class="flex flex-col min-h-screen">
-        <BookingHeader title="Manage your booking" />
+        <BookingHeader title="管理你的预约" />
 
         <div class="flex-1 flex items-center justify-center p-4 md:p-8">
           <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 md:p-10 max-w-lg w-full border border-slate-200/80">
@@ -654,7 +650,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   </svg>
                 )}
               </div>
-              <h1 class="text-2xl font-bold text-slate-900 mb-2">Your Booking</h1>
+              <h1 class="text-2xl font-bold text-slate-900 mb-2">你的预约</h1>
               <span
                 class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                   b.status === "confirmed"
@@ -676,7 +672,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">What</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">活动</p>
                   <p class="font-medium text-slate-900 mt-0.5">{b.event_name}</p>
                 </div>
               </div>
@@ -688,7 +684,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">When</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">时间</p>
                   <p class="font-medium text-slate-900 mt-0.5">{startTime} - {endTime}, {dateLabel}</p>
                 </div>
               </div>
@@ -700,7 +696,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   </svg>
                 </div>
                 <div>
-                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">Who</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">参与人</p>
                   <p class="font-medium text-slate-900 mt-0.5">{(b as any).host_name} and {b.invitee_name}</p>
                 </div>
               </div>
@@ -712,10 +708,10 @@ app.get("/:slug/manage/:token", async (c) => {
                     </svg>
                   </div>
                   <div>
-                    <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">Where</p>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">会议地点</p>
                     {b.status === "cancelled" ? (
                       <span class="inline-flex items-center gap-1.5 mt-1.5 bg-slate-100 text-slate-400 px-4 py-2 rounded-lg text-sm font-medium line-through">
-                        Meeting Cancelled
+                        会议已取消
                       </span>
                     ) : (
                       <a
@@ -723,7 +719,7 @@ app.get("/:slug/manage/:token", async (c) => {
                         target="_blank"
                         class="inline-flex items-center gap-2 mt-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all shadow-sm hover:shadow"
                       >
-                        Join Meeting
+                        加入会议
                       </a>
                     )}
                   </div>
@@ -738,22 +734,22 @@ app.get("/:slug/manage/:token", async (c) => {
                   class="text-red-500 text-sm font-medium hover:text-red-600 transition-colors"
                   onclick="document.getElementById('cancel-dialog').showModal()"
                 >
-                  Cancel this booking
+                  取消此预约
                 </button>
 
                 <dialog id="cancel-dialog" class="rounded-2xl shadow-2xl p-0 backdrop:bg-black/40 border border-slate-200">
                   <form method="post" action={`/${(b as any).slug}/manage/${token}/cancel`} class="p-6 w-96">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-1">Cancel Booking</h3>
-                    <p class="text-sm text-slate-500 mb-4">This action cannot be undone.</p>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-1">取消预约</h3>
+                    <p class="text-sm text-slate-500 mb-4">此操作不可撤销。</p>
                     <textarea
                       name="reason"
                       rows={3}
-                      placeholder="Reason for cancellation (optional)"
+                      placeholder="取消原因（选填）"
                       class="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-sm mb-4 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
                     />
                     <div class="flex gap-2 justify-end">
-                      <button type="button" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors" onclick="document.getElementById('cancel-dialog').close()">Back</button>
-                      <button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-all shadow-sm">Confirm Cancel</button>
+                      <button type="button" class="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 transition-colors" onclick="document.getElementById('cancel-dialog').close()">返回</button>
+                      <button type="submit" class="bg-red-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-all shadow-sm">确认取消</button>
                     </div>
                   </form>
                 </dialog>
@@ -769,7 +765,7 @@ app.get("/:slug/manage/:token", async (c) => {
                     <path d="M12 8v4M12 16h.01" stroke-width="2" stroke-linecap="round" />
                   </svg>
                   <div>
-                    <p class="text-sm text-red-600 font-medium mb-0.5">Cancellation reason</p>
+                    <p class="text-sm text-red-600 font-medium mb-0.5">取消原因</p>
                     <p class="text-sm text-slate-600">{b.cancel_reason}</p>
                   </div>
                 </div>
@@ -796,7 +792,7 @@ app.post("/:slug/manage/:token/cancel", async (c) => {
   }
 
   const body = await c.req.parseBody();
-  const reason = (body.reason as string) || "Cancelled by invitee";
+  const reason = (body.reason as string) || "由受邀者取消";
 
   // Cancel Tencent Meeting if applicable
   if (b.meeting_id) {
