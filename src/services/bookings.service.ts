@@ -92,6 +92,15 @@ export async function findByDateRange(
   );
 }
 
+function generateToken(): string {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let token = "";
+  for (let i = 0; i < 24; i++) {
+    token += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return token;
+}
+
 export async function create(
   db: DbAdapter,
   data: {
@@ -107,13 +116,22 @@ export async function create(
     meeting_url?: string;
   }
 ) {
+  const cancel_token = generateToken();
   const result = await db.run(
-    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes, custom_data, meeting_id, meeting_code, meeting_url)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes, data.custom_data, data.meeting_id || "", data.meeting_code || "", data.meeting_url || ""]
+    `INSERT INTO bookings (event_type_id, invitee_name, invitee_email, start_time, end_time, notes, custom_data, meeting_id, meeting_code, meeting_url, cancel_token)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [data.event_type_id, data.invitee_name, data.invitee_email, data.start_time, data.end_time, data.notes, data.custom_data, data.meeting_id || "", data.meeting_code || "", data.meeting_url || "", cancel_token]
   );
   await emitAfterCreate(db, "bookings", result.lastInsertRowid);
-  return result.lastInsertRowid;
+  return { id: result.lastInsertRowid, cancel_token };
+}
+
+export async function findByToken(db: DbAdapter, token: string) {
+  return db.get<BookingWithEvent>(
+    `SELECT b.*, e.name as event_name, e.slug, e.host_name, e.duration_minutes
+     FROM bookings b JOIN event_types e ON b.event_type_id = e.id WHERE b.cancel_token = ?`,
+    [token]
+  );
 }
 
 export async function cancel(db: DbAdapter, id: number, reason: string = "") {

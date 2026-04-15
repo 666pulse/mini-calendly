@@ -44,6 +44,7 @@ export async function initSchema(db: DbAdapter) {
       notes TEXT DEFAULT '',
       status TEXT DEFAULT 'confirmed' CHECK(status IN ('confirmed', 'cancelled')),
       cancel_reason TEXT DEFAULT '',
+      cancel_token TEXT DEFAULT '',
       meeting_id TEXT DEFAULT '',
       meeting_code TEXT DEFAULT '',
       meeting_url TEXT DEFAULT '',
@@ -97,6 +98,9 @@ export async function initSchema(db: DbAdapter) {
   }
   if (!bCols.find((c) => c.name === "meeting_url")) {
     await db.run("ALTER TABLE bookings ADD COLUMN meeting_url TEXT DEFAULT ''");
+  }
+  if (!bCols.find((c) => c.name === "cancel_token")) {
+    await db.run("ALTER TABLE bookings ADD COLUMN cancel_token TEXT DEFAULT ''");
   }
 
   const aCols = await db.all<{ name: string }>("PRAGMA table_info(availability)");

@@ -33,6 +33,7 @@ export interface Booking {
   notes: string;
   status: BookingStatus;
   cancel_reason: string;
+  cancel_token: string;
   meeting_id: string;
   meeting_code: string;
   meeting_url: string;

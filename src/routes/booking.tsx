@@ -230,7 +230,9 @@ app.get("/:slug/book", async (c) => {
               <div class="flex gap-3 pt-2">
                 <button
                   type="submit"
-                  class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
+                  id="submit-btn"
+                  class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onclick="this.disabled=true;this.textContent='Scheduling...';this.form.submit()"
                 >
                   Schedule Event
                 </button>
@@ -298,27 +300,31 @@ app.post("/:slug/book", async (c) => {
   if (event.meeting_provider === "tencent") {
     const token = getEnvVar(c, "TENCENT_MEETING_TOKEN");
     if (token) {
-      try {
-        const isoStart = `${date}T${time}:00+08:00`;
-        const isoEnd = `${date}T${endTimeStr}:00+08:00`;
-        const meeting = await TencentMeetingService.createMeeting(
-          token,
-          `${event.name} - ${name}`,
-          isoStart,
-          isoEnd
-        );
-        meetingId = meeting.meeting_id;
-        meetingCode = meeting.meeting_code;
-        meetingUrl = meeting.join_url;
-      } catch (e) {
-        console.error("Failed to create Tencent Meeting:", e);
+      const isoStart = `${date}T${time}:00+08:00`;
+      const isoEnd = `${date}T${endTimeStr}:00+08:00`;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const meeting = await TencentMeetingService.createMeeting(
+            token,
+            `${event.name} - ${name}`,
+            isoStart,
+            isoEnd
+          );
+          meetingId = meeting.meeting_id;
+          meetingCode = meeting.meeting_code;
+          meetingUrl = meeting.join_url;
+          break;
+        } catch (e) {
+          console.error(`Tencent Meeting attempt ${attempt}/3 failed:`, e);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 1000));
+        }
       }
     }
   } else if (event.meeting_provider === "static" && event.meeting_url) {
     meetingUrl = event.meeting_url;
   }
 
-  await BookingsService.create(db, {
+  const { cancel_token } = await BookingsService.create(db, {
     event_type_id: event.id,
     invitee_name: name,
     invitee_email: email,
@@ -331,7 +337,8 @@ app.post("/:slug/book", async (c) => {
     meeting_url: meetingUrl,
   });
 
-  return c.redirect(`/${slug}/confirmed?date=${date}&time=${time}&name=${encodeURIComponent(name)}`);
+  const meetingFailed = event.meeting_provider === "tencent" && !meetingUrl ? "1" : "";
+  return c.redirect(`/${slug}/confirmed?date=${date}&time=${time}&name=${encodeURIComponent(name)}&token=${cancel_token}&mf=${meetingFailed}`);
 });
 
 // Confirmation page
@@ -344,6 +351,8 @@ app.get("/:slug/confirmed", async (c) => {
   const date = c.req.query("date") || "";
   const time = c.req.query("time") || "";
   const name = c.req.query("name") || "";
+  const token = c.req.query("token") || "";
+  const meetingFailed = c.req.query("mf") === "1";
 
   // Look up the booking to get meeting URL
   const startTimeISO = `${date}T${time}:00`;
@@ -352,6 +361,7 @@ app.get("/:slug/confirmed", async (c) => {
     [event.id, startTimeISO]
   );
   const bookingMeetingUrl = latestBooking?.meeting_url || event.meeting_url || "";
+  const manageUrl = token ? `/${slug}/manage/${token}` : "";
 
   const [startH, startM] = time.split(":").map(Number);
   const endMinutes = startH * 60 + startM + event.duration_minutes;
@@ -370,50 +380,341 @@ app.get("/:slug/confirmed", async (c) => {
       <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full text-center border border-gray-200">
           <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <svg
+              class="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M5 13l4 4L19 7"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </div>
-          <h1 class="text-2xl font-bold text-gray-900 mb-2">You are scheduled</h1>
-          <p class="text-gray-500 mb-6">A calendar invitation has been sent to your email.</p>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2">
+            You are scheduled
+          </h1>
+          <p class="text-gray-500 mb-6">
+            A calendar invitation has been sent to your email.
+          </p>
 
-          <div class="bg-gray-50 rounded-lg p-6 text-left space-y-3">
-            <div>
-              <p class="text-sm text-gray-500">What</p>
-              <p class="font-medium text-gray-900">{event.name}</p>
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">When</p>
-              <p class="font-medium text-gray-900">
-                {time} - {endTimeStr}, {dateLabel}
+          {meetingFailed && (
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6 text-left">
+              <p class="text-sm text-yellow-800">
+                Meeting link could not be generated. The host will share the
+                meeting details with you separately.
               </p>
             </div>
-            <div>
-              <p class="text-sm text-gray-500">Who</p>
-              <p class="font-medium text-gray-900">
-                {event.host_name} and {name}
-              </p>
+          )}
+
+          <div class="bg-gray-50 rounded-lg p-6 text-left space-y-4">
+            <div class="flex items-start gap-3">
+              <svg
+                class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <rect
+                  x="3"
+                  y="4"
+                  width="18"
+                  height="18"
+                  rx="2"
+                  stroke-width="2"
+                />
+                <path
+                  d="M16 2v4M8 2v4M3 10h18"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                  What
+                </p>
+                <p class="font-medium text-gray-900">{event.name}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg
+                class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" stroke-width="2" />
+                <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
+              </svg>
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                  When
+                </p>
+                <p class="font-medium text-gray-900">
+                  {time} - {endTimeStr}, {dateLabel}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg
+                class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+                <circle cx="12" cy="7" r="4" stroke-width="2" />
+              </svg>
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Who</p>
+                <p class="font-medium text-gray-900">
+                  {event.host_name} and {name}
+                </p>
+              </div>
             </div>
             {bookingMeetingUrl && (
-              <div>
-                <p class="text-sm text-gray-500">Where</p>
-                <a href={bookingMeetingUrl} target="_blank" class="font-medium text-blue-600 hover:underline">
-                  Join Meeting
-                </a>
+              <div class="flex items-start gap-3">
+                <svg
+                  class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+                <div>
+                  <p class="text-xs text-gray-400 uppercase tracking-wide">
+                    Where
+                  </p>
+                  <a
+                    href={bookingMeetingUrl}
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 mt-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    <svg
+                      class="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                    Join Meeting
+                  </a>
+                </div>
               </div>
             )}
           </div>
 
-          <a
-            href={`/${slug}`}
-            class="inline-block mt-6 text-blue-600 hover:underline text-sm"
+          <div class="mt-6 space-y-2">
+            {manageUrl && (
+              <p class="text-sm">
+                <a
+                  href={manageUrl}
+                  class="text-blue-600 font-medium hover:underline"
+                >
+                  Manage your booking
+                </a>
+              </p>
+            )}
+            <a
+              href={`/${slug}`}
+              class="inline-block text-blue-600 hover:underline text-sm"
+            >
+              Schedule another meeting
+            </a>
+          </div>
+        </div>
+      </div>
+    </Layout>,
+  );
+});
+
+// Public manage booking page
+app.get("/:slug/manage/:token", async (c) => {
+  const db = c.get("db");
+  const token = c.req.param("token");
+  const b = await BookingsService.findByToken(db, token);
+
+  if (!b) {
+    return c.html(
+      <Layout title="Booking Not Found">
+        <div class="flex items-center justify-center min-h-screen">
+          <div class="text-center">
+            <h1 class="text-2xl font-bold text-gray-900 mb-2">Booking not found</h1>
+            <p class="text-gray-500">This link may have expired or is invalid.</p>
+          </div>
+        </div>
+      </Layout>,
+      404
+    );
+  }
+
+  const dateObj = new Date(b.start_time);
+  const dateLabel = dateObj.toLocaleDateString("en-US", {
+    weekday: "long", month: "long", day: "numeric", year: "numeric",
+  });
+  const startTime = b.start_time.split("T")[1]?.replace(":00", "") || "";
+  const endTime = b.end_time.split("T")[1]?.replace(":00", "") || "";
+
+  return c.html(
+    <Layout title="Manage Booking">
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full text-center border border-gray-200">
+          {/* Status badge */}
+          <div class={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
+            b.status === "confirmed" ? "bg-green-100" : "bg-red-100"
+          }`}>
+            {b.status === "confirmed" ? (
+              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            ) : (
+              <svg class="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            )}
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-1">Your Booking</h1>
+          <span
+            class={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-6 ${
+              b.status === "confirmed"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
           >
-            Schedule another meeting
-          </a>
+            {b.status}
+          </span>
+
+          <div class="bg-gray-50 rounded-lg p-6 text-left space-y-4">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
+                <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
+              </svg>
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide">What</p>
+                <p class="font-medium text-gray-900">{b.event_name}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke-width="2" />
+                <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
+              </svg>
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide">When</p>
+                <p class="font-medium text-gray-900">{startTime} - {endTime}, {dateLabel}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round" />
+                <circle cx="12" cy="7" r="4" stroke-width="2" />
+              </svg>
+              <div>
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Who</p>
+                <p class="font-medium text-gray-900">{(b as any).host_name} and {b.invitee_name}</p>
+              </div>
+            </div>
+            {b.meeting_url && (
+              <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div>
+                  <p class="text-xs text-gray-400 uppercase tracking-wide">Where</p>
+                  <a
+                    href={b.meeting_url}
+                    target="_blank"
+                    class="inline-flex items-center gap-1.5 mt-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    Join Meeting
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {b.status === "confirmed" && (
+            <div class="mt-6">
+              <button
+                class="text-red-500 text-sm hover:underline"
+                onclick="document.getElementById('cancel-dialog').showModal()"
+              >
+                Cancel this booking
+              </button>
+
+              <dialog id="cancel-dialog" class="rounded-lg shadow-xl p-0 backdrop:bg-black/30">
+                <form method="POST" action={`/${(b as any).slug}/manage/${token}/cancel`} class="p-6 w-96">
+                  <h3 class="font-semibold text-gray-900 mb-3">Cancel Booking</h3>
+                  <textarea name="reason" rows={3} placeholder="Reason for cancellation (optional)" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4" />
+                  <div class="flex gap-2 justify-end">
+                    <button type="button" class="px-3 py-1.5 text-sm text-gray-600" onclick="document.getElementById('cancel-dialog').close()">Back</button>
+                    <button type="submit" class="bg-red-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-red-700">Confirm Cancel</button>
+                  </div>
+                </form>
+              </dialog>
+            </div>
+          )}
+
+          {b.status === "cancelled" && b.cancel_reason && (
+            <div class="mt-6 bg-red-50 border border-red-100 rounded-lg p-4 text-left">
+              <p class="text-sm text-red-600 font-medium mb-1">Cancellation reason</p>
+              <p class="text-sm text-gray-600">{b.cancel_reason}</p>
+            </div>
+          )}
         </div>
       </div>
     </Layout>
   );
+});
+
+// Public cancel booking
+app.post("/:slug/manage/:token/cancel", async (c) => {
+  const db = c.get("db");
+  const slug = c.req.param("slug");
+  const token = c.req.param("token");
+  const b = await BookingsService.findByToken(db, token);
+
+  if (!b || b.status !== "confirmed") {
+    return c.redirect(`/${slug}`);
+  }
+
+  const body = await c.req.parseBody();
+  const reason = (body.reason as string) || "Cancelled by invitee";
+
+  // Cancel Tencent Meeting if applicable
+  if (b.meeting_id) {
+    const meetingToken = getEnvVar(c, "TENCENT_MEETING_TOKEN");
+    if (meetingToken) {
+      try {
+        await TencentMeetingService.cancelMeeting(meetingToken, b.meeting_id);
+      } catch (e) {
+        console.error("Failed to cancel Tencent Meeting:", e);
+      }
+    }
+  }
+
+  await BookingsService.cancel(db, b.id, reason);
+  return c.redirect(`/${slug}/manage/${token}`);
 });
 
 export default app;
