@@ -11,9 +11,9 @@ interface AvailabilityData {
 
 export function AvailabilityEditor({ data }: { data: AvailabilityData }) {
   return (
-    <fieldset class="border border-gray-200 rounded-md p-4">
-      <legend class="text-sm font-medium text-gray-700 px-1">Availability</legend>
-      <p class="text-xs text-gray-500 mb-3">Select days and set hours, add multiple time blocks per day</p>
+    <fieldset class="border border-slate-200 rounded-md p-4">
+      <legend class="text-sm font-medium text-slate-600 px-1">Availability</legend>
+      <p class="text-xs text-slate-500 mb-3">Select days and set hours, add multiple time blocks per day</p>
 
       <input type="hidden" name="availability_json" id="availability_json" value={JSON.stringify(data)} />
 
@@ -22,11 +22,11 @@ export function AvailabilityEditor({ data }: { data: AvailabilityData }) {
           const slots = data[i] || [];
           const enabled = slots.length > 0;
           return (
-            <div class="mb-3 pb-3 border-b border-gray-100 last:border-0" data-day-row data-day={String(i)}>
+            <div class="mb-3 pb-3 border-b border-slate-100 last:border-0" data-day-row data-day={String(i)}>
               <div class="flex items-center gap-3 mb-1">
                 <input type="checkbox" checked={enabled} data-day-toggle class="rounded" />
                 <span class="w-24 text-sm font-medium">{day}</span>
-                <button type="button" data-add-slot class="text-blue-500 text-xs hover:underline" style={enabled ? "" : "display:none"}>
+                <button type="button" data-add-slot class="text-indigo-500 text-xs hover:underline" style={enabled ? "" : "display:none"}>
                   + Add
                 </button>
               </div>
@@ -34,9 +34,9 @@ export function AvailabilityEditor({ data }: { data: AvailabilityData }) {
                 {enabled ? (
                   slots.map((s) => (
                     <div class="flex items-center gap-2" data-slot-row>
-                      <input type="text" value={s.start_time} data-slot-start class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
-                      <span class="text-gray-400">-</span>
-                      <input type="text" value={s.end_time} data-slot-end class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />
+                      <input type="text" value={s.start_time} data-slot-start class="border border-slate-300 rounded px-2 py-1 text-sm w-20" />
+                      <span class="text-slate-400">-</span>
+                      <input type="text" value={s.end_time} data-slot-end class="border border-slate-300 rounded px-2 py-1 text-sm w-20" />
                       <button type="button" data-remove-slot class="text-red-400 hover:text-red-600 text-xs">Remove</button>
                     </div>
                   ))
@@ -72,9 +72,9 @@ export function AvailabilityEditor({ data }: { data: AvailabilityData }) {
             const div = document.createElement('div');
             div.className = 'flex items-center gap-2';
             div.setAttribute('data-slot-row', '');
-            div.innerHTML = '<input type="text" value="' + start + '" data-slot-start class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />'
-              + '<span class="text-gray-400">-</span>'
-              + '<input type="text" value="' + end + '" data-slot-end class="border border-gray-300 rounded px-2 py-1 text-sm w-20" />'
+            div.innerHTML = '<input type="text" value="' + start + '" data-slot-start class="border border-slate-300 rounded px-2 py-1 text-sm w-20" />'
+              + '<span class="text-slate-400">-</span>'
+              + '<input type="text" value="' + end + '" data-slot-end class="border border-slate-300 rounded px-2 py-1 text-sm w-20" />'
               + '<button type="button" data-remove-slot class="text-red-400 hover:text-red-600 text-xs">Remove</button>';
             div.querySelector('[data-remove-slot]').addEventListener('click', function() { div.remove(); sync(); });
             div.querySelectorAll('input').forEach(el => el.addEventListener('input', sync));

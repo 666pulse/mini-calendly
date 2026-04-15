@@ -35,22 +35,22 @@ export function Calendar({
       <div class="flex items-center justify-between mb-6">
         <a
           href={`${baseUrl}?year=${prevYear}&month=${prevMonth}`}
-          class="text-gray-400 hover:text-gray-600 text-xl px-2"
+          class="text-slate-400 hover:text-slate-600 text-xl px-2 transition-colors"
         >
           &lt;
         </a>
-        <span class="text-lg font-semibold text-gray-900">
+        <span class="text-lg font-semibold text-slate-900">
           {MONTH_NAMES[month - 1]} {year}
         </span>
         <a
           href={`${baseUrl}?year=${nextYear}&month=${nextMonth}`}
-          class="text-gray-400 hover:text-gray-600 text-xl px-2"
+          class="text-slate-400 hover:text-slate-600 text-xl px-2 transition-colors"
         >
           &gt;
         </a>
       </div>
 
-      <div class="grid grid-cols-7 gap-1 text-center text-xs text-gray-500 font-medium mb-2">
+      <div class="grid grid-cols-7 gap-1 text-center text-xs text-slate-500 font-medium mb-2">
         {WEEKDAYS.map((d) => (
           <div class="py-1">{d}</div>
         ))}
@@ -67,7 +67,7 @@ export function Calendar({
             return (
               <a
                 href={`${baseUrl}?year=${year}&month=${month}&date=${day}`}
-                class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-blue-600 text-white font-semibold text-sm"
+                class="w-10 h-10 mx-auto flex items-center justify-center rounded-full bg-indigo-600 text-white font-semibold text-sm shadow-sm"
               >
                 {day}
               </a>
@@ -77,14 +77,14 @@ export function Calendar({
             return (
               <a
                 href={`${baseUrl}?year=${year}&month=${month}&date=${day}`}
-                class="w-10 h-10 mx-auto flex items-center justify-center rounded-full text-blue-600 font-semibold hover:bg-blue-50 text-sm cursor-pointer"
+                class="w-10 h-10 mx-auto flex items-center justify-center rounded-full text-indigo-600 font-semibold hover:bg-indigo-50 text-sm cursor-pointer transition-colors"
               >
                 {day}
               </a>
             );
           }
           return (
-            <div class="w-10 h-10 mx-auto flex items-center justify-center text-gray-300 text-sm">
+            <div class="w-10 h-10 mx-auto flex items-center justify-center text-slate-300 text-sm">
               {day}
             </div>
           );

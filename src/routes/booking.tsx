@@ -22,8 +22,8 @@ app.get("/:slug", async (c) => {
       <Layout title="Not Found">
         <div class="flex items-center justify-center min-h-screen">
           <div class="text-center">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Event not found</h1>
-            <a href="/admin" class="text-blue-600 hover:underline">Go to admin</a>
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">Event not found</h1>
+            <a href="/admin" class="text-indigo-600 hover:underline">Go to admin</a>
           </div>
         </div>
       </Layout>,
@@ -61,12 +61,12 @@ app.get("/:slug", async (c) => {
   return c.html(
     <Layout title={`${event.name} - ${event.host_name}`}>
       <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-gray-200">
+        <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200">
           {/* Left panel - Event info */}
-          <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-gray-200">
-            <p class="text-sm text-gray-600 font-medium mb-1">{event.host_name}</p>
-            <h1 class="text-xl font-bold text-gray-900 mb-4">{event.name}</h1>
-            <div class="flex items-center text-gray-500 text-sm mb-3">
+          <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200">
+            <p class="text-sm text-slate-500 font-medium mb-1">{event.host_name}</p>
+            <h1 class="text-xl font-bold text-slate-900 mb-4">{event.name}</h1>
+            <div class="flex items-center text-slate-500 text-sm mb-3">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" stroke-width="2" />
                 <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
@@ -74,7 +74,7 @@ app.get("/:slug", async (c) => {
               {event.duration_minutes} min
             </div>
             {event.description && (
-              <div class="flex items-start text-gray-500 text-sm">
+              <div class="flex items-start text-slate-500 text-sm">
                 <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="2" y="3" width="20" height="18" rx="2" stroke-width="2" />
                   <path d="M8 7h8M8 11h8M8 15h4" stroke-width="2" stroke-linecap="round" />
@@ -83,7 +83,7 @@ app.get("/:slug", async (c) => {
               </div>
             )}
             {event.meeting_url && (
-              <div class="flex items-center text-gray-500 text-sm">
+              <div class="flex items-center text-slate-500 text-sm">
                 <svg class="w-4 h-4 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -94,7 +94,7 @@ app.get("/:slug", async (c) => {
 
           {/* Right panel - Calendar + Time slots */}
           <div class="flex-1 p-8">
-            <h2 class="text-lg font-bold text-gray-900 mb-6">Select a Date & Time</h2>
+            <h2 class="text-lg font-bold text-slate-900 mb-6">Select a Date & Time</h2>
 
             <div class="flex gap-8">
               <div class="flex-1">
@@ -109,7 +109,7 @@ app.get("/:slug", async (c) => {
 
               {selectedDate && (
                 <div class="w-48">
-                  <p class="text-sm font-medium text-gray-900 mb-3">{dateLabel}</p>
+                  <p class="text-sm font-medium text-slate-900 mb-3">{dateLabel}</p>
                   <TimeSlots
                     slots={slots}
                     date={dateStr}
@@ -152,19 +152,19 @@ app.get("/:slug/book", async (c) => {
   return c.html(
     <Layout title={`Book ${event.name}`}>
       <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-lg max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-gray-200">
+        <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200">
           {/* Left panel */}
-          <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-gray-200">
-            <p class="text-sm text-gray-600 font-medium mb-1">{event.host_name}</p>
-            <h1 class="text-xl font-bold text-gray-900 mb-4">{event.name}</h1>
-            <div class="flex items-center text-gray-500 text-sm mb-3">
+          <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200">
+            <p class="text-sm text-slate-500 font-medium mb-1">{event.host_name}</p>
+            <h1 class="text-xl font-bold text-slate-900 mb-4">{event.name}</h1>
+            <div class="flex items-center text-slate-500 text-sm mb-3">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" stroke-width="2" />
                 <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
               </svg>
               {event.duration_minutes} min
             </div>
-            <div class="flex items-center text-gray-500 text-sm mb-3">
+            <div class="flex items-center text-slate-500 text-sm mb-3">
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                 <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
@@ -175,53 +175,53 @@ app.get("/:slug/book", async (c) => {
 
           {/* Right panel - Form */}
           <div class="flex-1 p-8">
-            <h2 class="text-lg font-bold text-gray-900 mb-6">Enter Details</h2>
+            <h2 class="text-lg font-bold text-slate-900 mb-6">Enter Details</h2>
             <form method="post" action={`/${slug}/book`} class="space-y-4">
               <input type="hidden" name="date" value={date} />
               <input type="hidden" name="time" value={time} />
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <label class="block text-sm font-medium text-slate-600 mb-1">Name *</label>
                 <input
                   type="text"
                   name="name"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Your name"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                <label class="block text-sm font-medium text-slate-600 mb-1">Email *</label>
                 <input
                   type="email"
                   name="email"
                   required
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="you@example.com"
                 />
               </div>
 
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                <label class="block text-sm font-medium text-slate-600 mb-1">Notes</label>
                 <textarea
                   name="notes"
                   rows={3}
-                  class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                   placeholder="Please share anything that will help prepare for our meeting."
                 />
               </div>
 
               {customFields.map((f) => (
                 <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                  <label class="block text-sm font-medium text-slate-600 mb-1">
                     {f.label}{f.required && " *"}
                   </label>
                   <input
                     type="text"
                     name={`cf_${f.key}`}
                     required={f.required}
-                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
                     placeholder={f.label}
                   />
                 </div>
@@ -231,14 +231,14 @@ app.get("/:slug/book", async (c) => {
                 <button
                   type="submit"
                   id="submit-btn"
-                  class="bg-blue-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="bg-indigo-600 text-white px-6 py-2.5 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
                   onclick="this.disabled=true;this.textContent='Scheduling...';this.form.submit()"
                 >
                   Schedule Event
                 </button>
                 <a
                   href={`/${slug}?year=${dateObj.getFullYear()}&month=${dateObj.getMonth() + 1}&date=${dateObj.getDate()}`}
-                  class="px-6 py-2.5 text-sm text-gray-600 hover:text-gray-900"
+                  class="px-6 py-2.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
                 >
                   Back
                 </a>
@@ -282,10 +282,10 @@ app.post("/:slug/book", async (c) => {
     return c.html(
       <Layout title="Time Unavailable">
         <div class="flex items-center justify-center min-h-screen">
-          <div class="bg-white rounded-lg shadow-lg p-8 max-w-md text-center">
+          <div class="bg-white rounded-xl shadow-lg p-8 max-w-md text-center border border-slate-200">
             <h1 class="text-xl font-bold text-red-600 mb-2">Time No Longer Available</h1>
-            <p class="text-gray-600 mb-4">This time slot was just booked. Please select another time.</p>
-            <a href={`/${slug}`} class="text-blue-600 hover:underline">Back to calendar</a>
+            <p class="text-slate-600 mb-4">This time slot was just booked. Please select another time.</p>
+            <a href={`/${slug}`} class="text-indigo-600 hover:underline">Back to calendar</a>
           </div>
         </div>
       </Layout>
@@ -378,10 +378,10 @@ app.get("/:slug/confirmed", async (c) => {
   return c.html(
     <Layout title="Booking Confirmed">
       <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full text-center border border-gray-200">
-          <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full text-center border border-slate-200">
+          <div class="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg
-              class="w-8 h-8 text-green-600"
+              class="w-8 h-8 text-emerald-600"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -394,10 +394,10 @@ app.get("/:slug/confirmed", async (c) => {
               />
             </svg>
           </div>
-          <h1 class="text-2xl font-bold text-gray-900 mb-2">
+          <h1 class="text-2xl font-bold text-slate-900 mb-2">
             You are scheduled
           </h1>
-          <p class="text-gray-500 mb-6">
+          <p class="text-slate-500 mb-6">
             A calendar invitation has been sent to your email.
           </p>
 
@@ -410,10 +410,10 @@ app.get("/:slug/confirmed", async (c) => {
             </div>
           )}
 
-          <div class="bg-gray-50 rounded-lg p-6 text-left space-y-4">
+          <div class="bg-slate-50 rounded-lg p-6 text-left space-y-4">
             <div class="flex items-start gap-3">
               <svg
-                class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -433,15 +433,15 @@ app.get("/:slug/confirmed", async (c) => {
                 />
               </svg>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                <p class="text-xs text-slate-400 uppercase tracking-wide">
                   What
                 </p>
-                <p class="font-medium text-gray-900">{event.name}</p>
+                <p class="font-medium text-slate-900">{event.name}</p>
               </div>
             </div>
             <div class="flex items-start gap-3">
               <svg
-                class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -450,17 +450,17 @@ app.get("/:slug/confirmed", async (c) => {
                 <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
               </svg>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">
+                <p class="text-xs text-slate-400 uppercase tracking-wide">
                   When
                 </p>
-                <p class="font-medium text-gray-900">
+                <p class="font-medium text-slate-900">
                   {time} - {endTimeStr}, {dateLabel}
                 </p>
               </div>
             </div>
             <div class="flex items-start gap-3">
               <svg
-                class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -473,8 +473,8 @@ app.get("/:slug/confirmed", async (c) => {
                 <circle cx="12" cy="7" r="4" stroke-width="2" />
               </svg>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">Who</p>
-                <p class="font-medium text-gray-900">
+                <p class="text-xs text-slate-400 uppercase tracking-wide">Who</p>
+                <p class="font-medium text-slate-900">
                   {event.host_name} and {name}
                 </p>
               </div>
@@ -482,7 +482,7 @@ app.get("/:slug/confirmed", async (c) => {
             {bookingMeetingUrl && (
               <div class="flex items-start gap-3">
                 <svg
-                  class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0"
+                  class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -495,13 +495,13 @@ app.get("/:slug/confirmed", async (c) => {
                   />
                 </svg>
                 <div>
-                  <p class="text-xs text-gray-400 uppercase tracking-wide">
+                  <p class="text-xs text-slate-400 uppercase tracking-wide">
                     Where
                   </p>
                   <a
                     href={bookingMeetingUrl}
                     target="_blank"
-                    class="inline-flex items-center gap-1.5 mt-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                    class="inline-flex items-center gap-1.5 mt-1 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
                   >
                     <svg
                       class="w-4 h-4"
@@ -528,7 +528,7 @@ app.get("/:slug/confirmed", async (c) => {
               <p class="text-sm">
                 <a
                   href={manageUrl}
-                  class="text-blue-600 font-medium hover:underline"
+                  class="text-indigo-600 font-medium hover:underline"
                 >
                   Manage your booking
                 </a>
@@ -536,7 +536,7 @@ app.get("/:slug/confirmed", async (c) => {
             )}
             <a
               href={`/${slug}`}
-              class="inline-block text-blue-600 hover:underline text-sm"
+              class="inline-block text-indigo-600 hover:underline text-sm"
             >
               Schedule another meeting
             </a>
@@ -558,8 +558,8 @@ app.get("/:slug/manage/:token", async (c) => {
       <Layout title="Booking Not Found">
         <div class="flex items-center justify-center min-h-screen">
           <div class="text-center">
-            <h1 class="text-2xl font-bold text-gray-900 mb-2">Booking not found</h1>
-            <p class="text-gray-500">This link may have expired or is invalid.</p>
+            <h1 class="text-2xl font-bold text-slate-900 mb-2">Booking not found</h1>
+            <p class="text-slate-500">This link may have expired or is invalid.</p>
           </div>
         </div>
       </Layout>,
@@ -577,13 +577,13 @@ app.get("/:slug/manage/:token", async (c) => {
   return c.html(
     <Layout title="Manage Booking">
       <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-lg p-8 max-w-lg w-full text-center border border-gray-200">
+        <div class="bg-white rounded-xl shadow-lg p-8 max-w-lg w-full text-center border border-slate-200">
           {/* Status badge */}
           <div class={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${
-            b.status === "confirmed" ? "bg-green-100" : "bg-red-100"
+            b.status === "confirmed" ? "bg-emerald-100" : "bg-red-100"
           }`}>
             {b.status === "confirmed" ? (
-              <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M5 13l4 4L19 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             ) : (
@@ -592,64 +592,64 @@ app.get("/:slug/manage/:token", async (c) => {
               </svg>
             )}
           </div>
-          <h1 class="text-2xl font-bold text-gray-900 mb-1">Your Booking</h1>
+          <h1 class="text-2xl font-bold text-slate-900 mb-1">Your Booking</h1>
           <span
             class={`inline-block px-3 py-1 rounded-full text-xs font-medium mb-6 ${
               b.status === "confirmed"
-                ? "bg-green-100 text-green-700"
+                ? "bg-emerald-100 text-emerald-700"
                 : "bg-red-100 text-red-700"
             }`}
           >
             {b.status}
           </span>
 
-          <div class="bg-gray-50 rounded-lg p-6 text-left space-y-4">
+          <div class="bg-slate-50 rounded-lg p-6 text-left space-y-4">
             <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                 <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
               </svg>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">What</p>
-                <p class="font-medium text-gray-900">{b.event_name}</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wide">What</p>
+                <p class="font-medium text-slate-900">{b.event_name}</p>
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" stroke-width="2" />
                 <path d="M12 6v6l4 2" stroke-width="2" stroke-linecap="round" />
               </svg>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">When</p>
-                <p class="font-medium text-gray-900">{startTime} - {endTime}, {dateLabel}</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wide">When</p>
+                <p class="font-medium text-slate-900">{startTime} - {endTime}, {dateLabel}</p>
               </div>
             </div>
             <div class="flex items-start gap-3">
-              <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke-width="2" stroke-linecap="round" />
                 <circle cx="12" cy="7" r="4" stroke-width="2" />
               </svg>
               <div>
-                <p class="text-xs text-gray-400 uppercase tracking-wide">Who</p>
-                <p class="font-medium text-gray-900">{(b as any).host_name} and {b.invitee_name}</p>
+                <p class="text-xs text-slate-400 uppercase tracking-wide">Who</p>
+                <p class="font-medium text-slate-900">{(b as any).host_name} and {b.invitee_name}</p>
               </div>
             </div>
             {b.meeting_url && (
               <div class="flex items-start gap-3">
-                <svg class="w-5 h-5 text-gray-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-5 h-5 text-slate-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
                 <div>
-                  <p class="text-xs text-gray-400 uppercase tracking-wide">Where</p>
+                  <p class="text-xs text-slate-400 uppercase tracking-wide">Where</p>
                   {b.status === "cancelled" ? (
-                    <span class="inline-flex items-center gap-1.5 mt-1 bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium line-through cursor-not-allowed">
+                    <span class="inline-flex items-center gap-1.5 mt-1 bg-slate-200 text-slate-500 px-4 py-2 rounded-lg text-sm font-medium line-through cursor-not-allowed">
                       Meeting Cancelled
                     </span>
                   ) : (
                     <a
                       href={b.meeting_url}
                       target="_blank"
-                      class="inline-flex items-center gap-1.5 mt-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                      class="inline-flex items-center gap-1.5 mt-1 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
                     >
                       Join Meeting
                     </a>
@@ -670,10 +670,10 @@ app.get("/:slug/manage/:token", async (c) => {
 
               <dialog id="cancel-dialog" class="rounded-lg shadow-xl p-0 backdrop:bg-black/30">
                 <form method="POST" action={`/${(b as any).slug}/manage/${token}/cancel`} class="p-6 w-96">
-                  <h3 class="font-semibold text-gray-900 mb-3">Cancel Booking</h3>
-                  <textarea name="reason" rows={3} placeholder="Reason for cancellation (optional)" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm mb-4" />
+                  <h3 class="font-semibold text-slate-900 mb-3">Cancel Booking</h3>
+                  <textarea name="reason" rows={3} placeholder="Reason for cancellation (optional)" class="w-full border border-slate-300 rounded-md px-3 py-2 text-sm mb-4" />
                   <div class="flex gap-2 justify-end">
-                    <button type="button" class="px-3 py-1.5 text-sm text-gray-600" onclick="document.getElementById('cancel-dialog').close()">Back</button>
+                    <button type="button" class="px-3 py-1.5 text-sm text-slate-600" onclick="document.getElementById('cancel-dialog').close()">Back</button>
                     <button type="submit" class="bg-red-600 text-white px-4 py-1.5 rounded-md text-sm font-medium hover:bg-red-700">Confirm Cancel</button>
                   </div>
                 </form>
@@ -684,7 +684,7 @@ app.get("/:slug/manage/:token", async (c) => {
           {b.status === "cancelled" && b.cancel_reason && (
             <div class="mt-6 bg-red-50 border border-red-100 rounded-lg p-4 text-left">
               <p class="text-sm text-red-600 font-medium mb-1">Cancellation reason</p>
-              <p class="text-sm text-gray-600">{b.cancel_reason}</p>
+              <p class="text-sm text-slate-600">{b.cancel_reason}</p>
             </div>
           )}
         </div>

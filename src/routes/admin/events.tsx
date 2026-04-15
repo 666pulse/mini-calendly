@@ -17,49 +17,49 @@ app.get("/new", (c) => {
   return c.html(
     <Layout title="New Event Type">
       <div class="max-w-xl mx-auto p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Create Event Type</h1>
+        <h1 class="text-2xl font-bold text-slate-900 mb-6">Create Event Type</h1>
         <form method="post" action="/admin/events" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Event Name *</label>
-            <input type="text" name="name" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="e.g. 30 Minute Meeting" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Event Name *</label>
+            <input type="text" name="name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="e.g. 30 Minute Meeting" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">URL Slug *</label>
-            <input type="text" name="slug" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="e.g. 30min-meeting" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">URL Slug *</label>
+            <input type="text" name="slug" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="e.g. 30min-meeting" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Host *</label>
-            <input type="text" name="host_name" required class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="Your name" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Host *</label>
+            <input type="text" name="host_name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="Your name" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes) *</label>
-            <input type="number" name="duration" required value="30" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Duration (minutes) *</label>
+            <input type="number" name="duration" required value="30" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea name="description" rows={2} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Description</label>
+            <textarea name="description" rows={2} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Provider</label>
-            <select name="meeting_provider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
+            <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
+            <select name="meeting_provider" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
               <option value="none">None</option>
               <option value="tencent">Tencent Meeting (auto-create)</option>
               <option value="static">Static URL (Google Meet, Zoom, etc.)</option>
             </select>
           </div>
           <div id="meeting-url-row-new" style="display:none">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting URL</label>
-            <input type="url" name="meeting_url" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Meeting URL</label>
+            <input type="url" name="meeting_url" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="https://meet.google.com/xxx-xxx-xxx" />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-              <input type="date" name="start_date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+              <label class="block text-sm font-medium text-slate-600 mb-1">Start Date</label>
+              <input type="date" name="start_date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-              <input type="date" name="end_date" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+              <label class="block text-sm font-medium text-slate-600 mb-1">End Date</label>
+              <input type="date" name="end_date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
             </div>
           </div>
 
@@ -74,10 +74,10 @@ app.get("/new", (c) => {
           <CustomFieldsEditor fields={[]} />
 
           <div class="flex gap-3 pt-2">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+            <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all duration-200 shadow-sm">
               Create
             </button>
-            <a href="/admin" class="px-6 py-2 text-sm text-gray-600 hover:text-gray-900">Cancel</a>
+            <a href="/admin" class="px-6 py-2 text-sm text-slate-500 hover:text-slate-900">Cancel</a>
           </div>
         </form>
       </div>
@@ -132,49 +132,49 @@ app.get("/:id", async (c) => {
   return c.html(
     <Layout title={`Edit ${event.name}`}>
       <div class="max-w-xl mx-auto p-6">
-        <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Event Type</h1>
+        <h1 class="text-2xl font-bold text-slate-900 mb-6">Edit Event Type</h1>
         <form method="post" action={`/admin/events/${id}`} class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Event Name</label>
-            <input type="text" name="name" required value={event.name} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Event Name</label>
+            <input type="text" name="name" required value={event.name} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">URL Slug</label>
-            <input type="text" name="slug" required value={event.slug} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">URL Slug</label>
+            <input type="text" name="slug" required value={event.slug} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Host</label>
-            <input type="text" name="host_name" required value={event.host_name} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Host</label>
+            <input type="text" name="host_name" required value={event.host_name} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Duration (minutes)</label>
-            <input type="number" name="duration" required value={String(event.duration_minutes)} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Duration (minutes)</label>
+            <input type="number" name="duration" required value={String(event.duration_minutes)} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea name="description" rows={2} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">{event.description}</textarea>
+            <label class="block text-sm font-medium text-slate-600 mb-1">Description</label>
+            <textarea name="description" rows={2} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">{event.description}</textarea>
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting Provider</label>
-            <select name="meeting_provider" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" id="meeting-provider-edit" onchange="document.getElementById('meeting-url-row-edit').style.display = this.value === 'static' ? '' : 'none'">
+            <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
+            <select name="meeting_provider" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" id="meeting-provider-edit" onchange="document.getElementById('meeting-url-row-edit').style.display = this.value === 'static' ? '' : 'none'">
               <option value="none" selected={event.meeting_provider === "none" || !event.meeting_provider}>None</option>
               <option value="tencent" selected={event.meeting_provider === "tencent"}>Tencent Meeting (auto-create)</option>
               <option value="static" selected={event.meeting_provider === "static"}>Static URL (Google Meet, Zoom, etc.)</option>
             </select>
           </div>
           <div id="meeting-url-row-edit" style={event.meeting_provider === "static" ? "" : "display:none"}>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Meeting URL</label>
-            <input type="url" name="meeting_url" value={event.meeting_url || ""} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+            <label class="block text-sm font-medium text-slate-600 mb-1">Meeting URL</label>
+            <input type="url" name="meeting_url" value={event.meeting_url || ""} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="https://meet.google.com/xxx-xxx-xxx" />
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-              <input type="date" name="start_date" value={event.start_date || ""} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+              <label class="block text-sm font-medium text-slate-600 mb-1">Start Date</label>
+              <input type="date" name="start_date" value={event.start_date || ""} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">End Date</label>
-              <input type="date" name="end_date" value={event.end_date || ""} class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm" />
+              <label class="block text-sm font-medium text-slate-600 mb-1">End Date</label>
+              <input type="date" name="end_date" value={event.end_date || ""} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
             </div>
           </div>
 
@@ -183,14 +183,14 @@ app.get("/:id", async (c) => {
           <CustomFieldsEditor fields={JSON.parse(event.custom_fields || "[]") as CustomField[]} />
 
           <div class="flex gap-3 pt-2">
-            <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-blue-700">
+            <button type="submit" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all duration-200 shadow-sm">
               Save Changes
             </button>
-            <a href="/admin" class="px-6 py-2 text-sm text-gray-600 hover:text-gray-900">Cancel</a>
+            <a href="/admin" class="px-6 py-2 text-sm text-slate-500 hover:text-slate-900">Cancel</a>
           </div>
         </form>
 
-        <form method="post" action={`/admin/events/${id}/delete`} class="mt-8 pt-6 border-t border-gray-200">
+        <form method="post" action={`/admin/events/${id}/delete`} class="mt-8 pt-6 border-t border-slate-200">
           <button type="submit" class="text-red-500 text-sm hover:underline" onclick="return confirm('Delete this event type and all its bookings?')">
             Delete this event type
           </button>
