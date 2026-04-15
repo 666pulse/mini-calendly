@@ -58,6 +58,26 @@ export async function initSchema(db: DbAdapter) {
     CREATE INDEX IF NOT EXISTS idx_bookings_event_time
     ON bookings(event_type_id, start_time, end_time)
   `);
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_bookings_event_status_start
+    ON bookings(event_type_id, status, start_time)
+  `);
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_bookings_status_start
+    ON bookings(status, start_time)
+  `);
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_bookings_event_start_id
+    ON bookings(event_type_id, start_time, id DESC)
+  `);
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_bookings_cancel_token
+    ON bookings(cancel_token)
+  `);
+  await db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_availability_event_day_start
+    ON availability(event_type_id, day_of_week, start_time)
+  `);
 
   // Migrations
   const etCols = await db.all<{ name: string }>("PRAGMA table_info(event_types)");

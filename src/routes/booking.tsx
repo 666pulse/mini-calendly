@@ -641,13 +641,19 @@ app.get("/:slug/manage/:token", async (c) => {
                 </svg>
                 <div>
                   <p class="text-xs text-gray-400 uppercase tracking-wide">Where</p>
-                  <a
-                    href={b.meeting_url}
-                    target="_blank"
-                    class="inline-flex items-center gap-1.5 mt-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-                  >
-                    Join Meeting
-                  </a>
+                  {b.status === "cancelled" ? (
+                    <span class="inline-flex items-center gap-1.5 mt-1 bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium line-through cursor-not-allowed">
+                      Meeting Cancelled
+                    </span>
+                  ) : (
+                    <a
+                      href={b.meeting_url}
+                      target="_blank"
+                      class="inline-flex items-center gap-1.5 mt-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      Join Meeting
+                    </a>
+                  )}
                 </div>
               </div>
             )}
