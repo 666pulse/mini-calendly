@@ -6,6 +6,7 @@ import { CustomFieldsEditor } from "../../components/CustomFieldsEditor";
 import { AvailabilityEditor } from "../../components/AvailabilityEditor";
 import type { CustomField } from "../../services/entities";
 import { nestedBookings } from "./bookings";
+import { MONDAY_TO_FRIDAY_MON_FIRST } from "../../lib/week";
 
 const app = new Hono<Env>();
 
@@ -95,13 +96,12 @@ function NewEventForm({ error, values: v }: { error?: string; values?: FormValue
             </div>
           </div>
 
-          <AvailabilityEditor data={{
-            0: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
-            1: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
-            2: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
-            3: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
-            4: [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
-          }} />
+          <AvailabilityEditor data={Object.fromEntries(
+            MONDAY_TO_FRIDAY_MON_FIRST.map((day) => [
+              day,
+              [{ start_time: "09:00", end_time: "12:00" }, { start_time: "13:00", end_time: "17:00" }],
+            ])
+          )} />
 
           <CustomFieldsEditor fields={[]} />
 
@@ -185,8 +185,9 @@ app.get("/:id", async (c) => {
   const avails = await EventTypesService.getAvailability(db, id);
   const availData: Record<number, { start_time: string; end_time: string }[]> = {};
   for (const a of avails) {
-    if (!availData[a.day_of_week]) availData[a.day_of_week] = [];
-    availData[a.day_of_week].push({ start_time: a.start_time, end_time: a.end_time });
+    const daySlots = availData[a.day_of_week] || [];
+    daySlots.push({ start_time: a.start_time, end_time: a.end_time });
+    availData[a.day_of_week] = daySlots;
   }
 
   return c.html(

@@ -1,4 +1,4 @@
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+import { WEEKDAY_LABELS_EN_MON_FIRST } from "../lib/week";
 
 interface DaySlot {
   start_time: string;
@@ -18,7 +18,7 @@ export function AvailabilityEditor({ data }: { data: AvailabilityData }) {
       <input type="hidden" name="availability_json" id="availability_json" value={JSON.stringify(data)} />
 
       <div id="avail-editor">
-        {DAYS.map((day, i) => {
+        {WEEKDAY_LABELS_EN_MON_FIRST.map((day, i) => {
           const slots = data[i] || [];
           const enabled = slots.length > 0;
           return (

@@ -1,4 +1,5 @@
-const WEEKDAYS = ["一", "二", "三", "四", "五", "六", "日"];
+import { WEEKDAY_LABELS_ZH_SHORT_MON_FIRST, jsDayToMonFirstIndex } from "../lib/week";
+
 const MONTH_NAMES = [
   "一月", "二月", "三月", "四月", "五月", "六月",
   "七月", "八月", "九月", "十月", "十一月", "十二月",
@@ -17,7 +18,7 @@ export function Calendar({
   selectedDate?: number;
   baseUrl: string;
 }) {
-  const firstDay = new Date(year, month - 1, 1).getDay();
+  const firstDay = jsDayToMonFirstIndex(new Date(year, month - 1, 1).getDay());
   const daysInMonth = new Date(year, month, 0).getDate();
 
   const prevMonth = month === 1 ? 12 : month - 1;
@@ -51,7 +52,7 @@ export function Calendar({
       </div>
 
       <div class="grid grid-cols-7 gap-1 text-center text-xs text-slate-500 font-medium mb-2">
-        {WEEKDAYS.map((d) => (
+        {WEEKDAY_LABELS_ZH_SHORT_MON_FIRST.map((d) => (
           <div class="py-1">{d}</div>
         ))}
       </div>

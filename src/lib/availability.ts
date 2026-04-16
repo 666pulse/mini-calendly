@@ -1,6 +1,7 @@
 import type { DbAdapter } from "../db/adapter";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
+import { jsDayToMonFirstIndex } from "./week";
 
 export const DEFAULT_TZ = "Asia/Singapore";
 const TZ_OFFSET_MS = 8 * 60 * 60 * 1000; // UTC+8
@@ -22,7 +23,7 @@ export async function getAvailableSlots(
   durationMinutes: number,
 ): Promise<TimeSlot[]> {
   const dateObj = new Date(date + "T00:00:00");
-  const dayOfWeek = dateObj.getDay();
+  const dayOfWeek = jsDayToMonFirstIndex(dateObj.getDay());
 
   const availabilities = await EventTypesService.getAvailabilityByDay(db, eventTypeId, dayOfWeek);
   if (availabilities.length === 0) return [];
@@ -30,12 +31,18 @@ export async function getAvailableSlots(
   const dayStart = date + "T00:00:00";
   const dayEnd = date + "T23:59:59";
   const bookings = await BookingsService.findByDateRange(db, eventTypeId, dayStart, dayEnd);
+  const now = nowInTZ();
+  const nowDateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+  const isToday = date === nowDateStr;
 
   const slots: TimeSlot[] = [];
 
   for (const avail of availabilities) {
-    const [startH, startM] = avail.start_time.split(":").map(Number);
-    const [endH, endM] = avail.end_time.split(":").map(Number);
+    const startH = Number(avail.start_time.slice(0, 2));
+    const startM = Number(avail.start_time.slice(3, 5));
+    const endH = Number(avail.end_time.slice(0, 2));
+    const endM = Number(avail.end_time.slice(3, 5));
 
     let currentMinutes = startH * 60 + startM;
     const endMinutes = endH * 60 + endM;
@@ -57,7 +64,7 @@ export async function getAvailableSlots(
         return b.start_time < slotEndISO && b.end_time > slotStartISO;
       });
 
-      if (!hasConflict) {
+      if (!hasConflict && (!isToday || currentMinutes >= nowMinutes)) {
         slots.push({ start: slotStart, end: slotEnd });
       }
 
@@ -92,7 +99,7 @@ export async function getAvailableDates(
     if (date < today) continue;
     if (rangeStart && date < rangeStart) continue;
     if (rangeEnd && date > rangeEnd) continue;
-    if (availableDays.has(date.getUTCDay())) {
+    if (availableDays.has(jsDayToMonFirstIndex(date.getUTCDay()))) {
       dates.push(day);
     }
   }
