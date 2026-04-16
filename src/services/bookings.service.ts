@@ -128,7 +128,7 @@ export async function create(
 
 export async function findByToken(db: DbAdapter, token: string) {
   return db.get<BookingWithEvent>(
-    `SELECT b.*, e.name as event_name, e.slug, e.host_name, e.duration_minutes
+    `SELECT b.*, e.name as event_name, e.slug, e.host_name, e.duration_minutes, e.meeting_provider
      FROM bookings b JOIN event_types e ON b.event_type_id = e.id WHERE b.cancel_token = ?`,
     [token]
   );

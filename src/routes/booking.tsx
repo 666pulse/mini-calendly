@@ -3,6 +3,7 @@ import { type Env, getEnvVar } from "../app";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 import * as TencentMeetingService from "../services/tencent-meeting.service";
+import * as GoogleMeetService from "../services/google-meet.service";
 import type { CustomField } from "../services/entities";
 import { Layout } from "../components/Layout";
 import { Calendar } from "../components/Calendar";
@@ -406,6 +407,32 @@ app.post("/:slug/book", async (c) => {
         }
       }
     }
+  } else if (event.meeting_provider === "google") {
+    const gClientId = getEnvVar(c, "GOOGLE_CLIENT_ID");
+    const gClientSecret = getEnvVar(c, "GOOGLE_CLIENT_SECRET");
+    const gRefreshToken = getEnvVar(c, "GOOGLE_REFRESH_TOKEN");
+    if (gClientId && gClientSecret && gRefreshToken) {
+      const isoStart = `${date}T${time}:00+08:00`;
+      const isoEnd = `${date}T${endTimeStr}:00+08:00`;
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+          const meeting = await GoogleMeetService.createMeeting(
+            gClientId,
+            gClientSecret,
+            gRefreshToken,
+            `${event.name} - ${name}`,
+            isoStart,
+            isoEnd
+          );
+          meetingId = meeting.event_id;
+          meetingUrl = meeting.meeting_url;
+          break;
+        } catch (e) {
+          console.error(`Google Meet attempt ${attempt}/3 failed:`, e);
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 1000));
+        }
+      }
+    }
   } else if (event.meeting_provider === "static" && event.meeting_url) {
     meetingUrl = event.meeting_url;
   }
@@ -423,7 +450,7 @@ app.post("/:slug/book", async (c) => {
     meeting_url: meetingUrl,
   });
 
-  const meetingFailed = event.meeting_provider === "tencent" && !meetingUrl ? "1" : "";
+  const meetingFailed = (event.meeting_provider === "tencent" || event.meeting_provider === "google") && !meetingUrl ? "1" : "";
   return c.redirect(`/${slug}/confirmed?date=${date}&time=${time}&name=${encodeURIComponent(name)}&token=${cancel_token}&mf=${meetingFailed}`);
 });
 
@@ -797,14 +824,28 @@ app.post("/:slug/manage/:token/cancel", async (c) => {
   const body = await c.req.parseBody();
   const reason = (body.reason as string) || "由受邀者取消";
 
-  // Cancel Tencent Meeting if applicable
+  // Cancel meeting if applicable
   if (b.meeting_id) {
-    const meetingToken = getEnvVar(c, "TENCENT_MEETING_TOKEN");
-    if (meetingToken) {
-      try {
-        await TencentMeetingService.cancelMeeting(meetingToken, b.meeting_id);
-      } catch (e) {
-        console.error("Failed to cancel Tencent Meeting:", e);
+    const provider = (b as any).meeting_provider;
+    if (provider === "tencent") {
+      const meetingToken = getEnvVar(c, "TENCENT_MEETING_TOKEN");
+      if (meetingToken) {
+        try {
+          await TencentMeetingService.cancelMeeting(meetingToken, b.meeting_id);
+        } catch (e) {
+          console.error("Failed to cancel Tencent Meeting:", e);
+        }
+      }
+    } else if (provider === "google") {
+      const gClientId = getEnvVar(c, "GOOGLE_CLIENT_ID");
+      const gClientSecret = getEnvVar(c, "GOOGLE_CLIENT_SECRET");
+      const gRefreshToken = getEnvVar(c, "GOOGLE_REFRESH_TOKEN");
+      if (gClientId && gClientSecret && gRefreshToken) {
+        try {
+          await GoogleMeetService.cancelMeeting(gClientId, gClientSecret, gRefreshToken, b.meeting_id);
+        } catch (e) {
+          console.error("Failed to cancel Google Meet:", e);
+        }
       }
     }
   }

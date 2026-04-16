@@ -43,8 +43,9 @@ app.get("/new", (c) => {
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
             <select name="meeting_provider" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
               <option value="none">None</option>
+              <option value="google">Google Meet (auto-create)</option>
               <option value="tencent">Tencent Meeting (auto-create)</option>
-              <option value="static">Static URL (Google Meet, Zoom, etc.)</option>
+              <option value="static">Static URL (Zoom, etc.)</option>
             </select>
           </div>
           <div id="meeting-url-row-new" style="display:none">
@@ -158,8 +159,9 @@ app.get("/:id", async (c) => {
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
             <select name="meeting_provider" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" id="meeting-provider-edit" onchange="document.getElementById('meeting-url-row-edit').style.display = this.value === 'static' ? '' : 'none'">
               <option value="none" selected={event.meeting_provider === "none" || !event.meeting_provider}>None</option>
+              <option value="google" selected={event.meeting_provider === "google"}>Google Meet (auto-create)</option>
               <option value="tencent" selected={event.meeting_provider === "tencent"}>Tencent Meeting (auto-create)</option>
-              <option value="static" selected={event.meeting_provider === "static"}>Static URL (Google Meet, Zoom, etc.)</option>
+              <option value="static" selected={event.meeting_provider === "static"}>Static URL (Zoom, etc.)</option>
             </select>
           </div>
           <div id="meeting-url-row-edit" style={event.meeting_provider === "static" ? "" : "display:none"}>
