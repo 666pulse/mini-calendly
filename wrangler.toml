@@ -11,3 +11,10 @@ database_id = ""
 [vars]
 ADMIN_USER = ""
 ADMIN_PASS = ""
+# Get token from https://meeting.tencent.com/ai-skill
+TENCENT_MEETING_TOKEN = ""
+# Google Meet: create OAuth2 credentials at https://console.cloud.google.com/apis/credentials
+# Enable Google Calendar API, then get refresh_token via OAuth2 playground
+GOOGLE_CLIENT_ID = ""
+GOOGLE_CLIENT_SECRET = ""
+GOOGLE_REFRESH_TOKEN = ""
