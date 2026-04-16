@@ -34,7 +34,7 @@ app.get("/", async (c) => {
               <div class="bg-white rounded-xl border border-slate-200 p-5 flex items-center justify-between hover:shadow-sm transition-all duration-200">
                 <div>
                   <div class="flex items-center gap-3">
-                    <div class="w-1 h-10 rounded-full" style={`background: ${event.color}`} />
+                    <div class="w-1 h-10 rounded-full bg-indigo-600" />
                     <div>
                       <h3 class="font-semibold text-slate-900">{event.name}</h3>
                       <p class="text-sm text-slate-500">

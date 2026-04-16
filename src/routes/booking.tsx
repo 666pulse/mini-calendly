@@ -112,8 +112,8 @@ app.get("/:slug", async (c) => {
           <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
             {/* Left panel - Event info */}
             <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={`background: ${event.color}15`}>
-                <svg class="w-5 h-5" style={`color: ${event.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: #4f46e515">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                   <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                 </svg>
@@ -219,8 +219,8 @@ app.get("/:slug/book", async (c) => {
           <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
             {/* Left panel */}
             <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style={`background: ${event.color}15`}>
-                <svg class="w-5 h-5" style={`color: ${event.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: #4f46e515">
+                <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                   <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                 </svg>

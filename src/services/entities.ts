@@ -5,7 +5,6 @@ export interface EventType {
   host_name: string;
   duration_minutes: number;
   description: string;
-  color: string;
   custom_fields: string; // JSON: CustomField[]
   meeting_provider: string; // 'none' | 'static' | 'tencent' | 'google'
   meeting_url: string;     // static URL or auto-generated

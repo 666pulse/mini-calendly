@@ -90,9 +90,9 @@ app.get("/", async (c) => {
                   {/* Color accent & icon */}
                   <div
                     class="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={`background: ${event.color}15`}
+                    style="background: #4f46e515"
                   >
-                    <svg class="w-5 h-5" style={`color: ${event.color}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                       <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                     </svg>
