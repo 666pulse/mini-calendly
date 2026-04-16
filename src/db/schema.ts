@@ -74,6 +74,9 @@ export async function initSchema(db: DbAdapter) {
   if (!etCols.find((c) => c.name === "meeting_provider")) {
     await db.run("ALTER TABLE event_types ADD COLUMN meeting_provider TEXT DEFAULT 'none'");
   }
+  if (!etCols.find((c) => c.name === "published")) {
+    await db.run("ALTER TABLE event_types ADD COLUMN published INTEGER DEFAULT 1");
+  }
 
   const bCols = await db.all<{ name: string }>("PRAGMA table_info(bookings)");
   if (!bCols.find((c) => c.name === "custom_data")) {

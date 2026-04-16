@@ -14,6 +14,10 @@ export async function listAll(db: DbAdapter) {
   return db.all<EventType>("SELECT * FROM event_types ORDER BY created_at DESC");
 }
 
+export async function listPublished(db: DbAdapter) {
+  return db.all<EventType>("SELECT * FROM event_types WHERE published = 1 ORDER BY created_at DESC");
+}
+
 export async function create(
   db: DbAdapter,
   data: {
@@ -25,13 +29,14 @@ export async function create(
     custom_fields: string;
     meeting_provider: string;
     meeting_url: string;
+    published: number;
     start_date: string | null;
     end_date: string | null;
   }
 ) {
   const result = await db.run(
-    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, meeting_provider, meeting_url, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.start_date, data.end_date]
+    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, meeting_provider, meeting_url, published, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.published, data.start_date, data.end_date]
   );
   await emitAfterCreate(db, "event_types", result.lastInsertRowid);
   return result.lastInsertRowid;
@@ -41,7 +46,6 @@ export async function update(
   db: DbAdapter,
   id: number,
   data: {
-    slug: string;
     name: string;
     host_name: string;
     duration_minutes: number;
@@ -49,13 +53,14 @@ export async function update(
     custom_fields: string;
     meeting_provider: string;
     meeting_url: string;
+    published: number;
     start_date: string | null;
     end_date: string | null;
   }
 ) {
   await db.run(
-    `UPDATE event_types SET slug = ?, name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, meeting_provider = ?, meeting_url = ?, start_date = ?, end_date = ? WHERE id = ?`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.start_date, data.end_date, id]
+    `UPDATE event_types SET name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, meeting_provider = ?, meeting_url = ?, published = ?, start_date = ?, end_date = ? WHERE id = ?`,
+    [data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.published, data.start_date, data.end_date, id]
   );
   await emitAfterUpdate(db, "event_types", id);
 }

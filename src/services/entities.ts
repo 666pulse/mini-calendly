@@ -7,8 +7,9 @@ export interface EventType {
   description: string;
   color: string;
   custom_fields: string; // JSON: CustomField[]
-  meeting_provider: string; // 'none' | 'static' | 'tencent'
+  meeting_provider: string; // 'none' | 'static' | 'tencent' | 'google'
   meeting_url: string;     // static URL or auto-generated
+  published: number;       // 1 = published, 0 = draft
   start_date: string | null; // YYYY-MM-DD
   end_date: string | null;   // YYYY-MM-DD
   created_at: string;

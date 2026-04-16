@@ -54,7 +54,7 @@ app.get("/:slug", async (c) => {
   const slug = c.req.param("slug");
   const event = await EventTypesService.findBySlug(db, slug);
 
-  if (!event) {
+  if (!event || !event.published) {
     return c.html(
       <Layout title="Not Found">
         <BookingHeader />
@@ -193,7 +193,7 @@ app.get("/:slug/book", async (c) => {
   const time = c.req.query("time") || "";
 
   const event = await EventTypesService.findBySlug(db, slug);
-  if (!event) return c.redirect("/");
+  if (!event || !event.published) return c.redirect("/");
 
   const customFields: CustomField[] = JSON.parse(event.custom_fields || "[]");
 
@@ -332,7 +332,7 @@ app.post("/:slug/book", async (c) => {
   const db = c.get("db");
   const slug = c.req.param("slug");
   const event = await EventTypesService.findBySlug(db, slug);
-  if (!event) return c.redirect("/");
+  if (!event || !event.published) return c.redirect("/");
 
   const body = await c.req.parseBody();
   const date = body.date as string;

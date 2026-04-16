@@ -13,54 +13,85 @@ const app = new Hono<Env>();
 app.route("/:eventId/bookings", nestedBookings);
 
 // New event type form
-app.get("/new", (c) => {
-  return c.html(
+// Shared form values type
+interface FormValues {
+  name?: string;
+  slug?: string;
+  host_name?: string;
+  duration?: string;
+  description?: string;
+  meeting_provider?: string;
+  meeting_url?: string;
+  published?: string;
+  start_date?: string;
+  end_date?: string;
+}
+
+const inputCls = "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors";
+
+function NewEventForm({ error, values: v }: { error?: string; values?: FormValues }) {
+  const mp = v?.meeting_provider || "none";
+  return (
     <Layout title="New Event Type">
       <div class="max-w-xl mx-auto p-6">
         <h1 class="text-2xl font-bold text-slate-900 mb-6">Create Event Type</h1>
+
+        {error && (
+          <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+            <p class="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+
         <form method="post" action="/admin/events" class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Event Name *</label>
-            <input type="text" name="name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="e.g. 30 Minute Meeting" />
+            <input type="text" name="name" required value={v?.name || ""} class={inputCls} placeholder="e.g. 30 Minute Meeting" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">URL Slug *</label>
-            <input type="text" name="slug" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="e.g. 30min-meeting" />
+            <input type="text" name="slug" required value={v?.slug || ""} class={inputCls} placeholder="e.g. 30min-meeting" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Host *</label>
-            <input type="text" name="host_name" required class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="Your name" />
+            <input type="text" name="host_name" required value={v?.host_name || ""} class={inputCls} placeholder="Your name" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Duration (minutes) *</label>
-            <input type="number" name="duration" required value="30" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+            <input type="number" name="duration" required value={v?.duration || "30"} class={inputCls} />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Description</label>
-            <textarea name="description" rows={2} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+            <textarea name="description" rows={2} class={inputCls}>{v?.description || ""}</textarea>
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
-            <select name="meeting_provider" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
-              <option value="none">None</option>
-              <option value="google">Google Meet (auto-create)</option>
-              <option value="tencent">Tencent Meeting (auto-create)</option>
-              <option value="static">Static URL (Zoom, etc.)</option>
+            <select name="meeting_provider" class={inputCls} id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
+              <option value="none" selected={mp === "none"}>None</option>
+              <option value="google" selected={mp === "google"}>Google Meet (auto-create)</option>
+              <option value="tencent" selected={mp === "tencent"}>Tencent Meeting (auto-create)</option>
+              <option value="static" selected={mp === "static"}>Static URL (Zoom, etc.)</option>
             </select>
           </div>
-          <div id="meeting-url-row-new" style="display:none">
+          <div id="meeting-url-row-new" style={mp === "static" ? "" : "display:none"}>
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting URL</label>
-            <input type="url" name="meeting_url" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+            <input type="url" name="meeting_url" value={v?.meeting_url || ""} class={inputCls} placeholder="https://meet.google.com/xxx-xxx-xxx" />
+          </div>
+
+          <div>
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="published" value="1" checked={v?.published !== "0"} class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-600">Published</span>
+            </label>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Start Date</label>
-              <input type="date" name="start_date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+              <input type="date" name="start_date" value={v?.start_date || ""} class={inputCls} />
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">End Date</label>
-              <input type="date" name="end_date" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+              <input type="date" name="end_date" value={v?.end_date || ""} class={inputCls} />
             </div>
           </div>
 
@@ -84,15 +115,42 @@ app.get("/new", (c) => {
       </div>
     </Layout>
   );
+}
+
+app.get("/new", (c) => {
+  return c.html(<NewEventForm />);
 });
 
 // Create event type
 app.post("/", async (c) => {
   const db = c.get("db");
   const body = await c.req.parseBody();
+  const slug = body.slug as string;
+
+  const formValues: FormValues = {
+    name: body.name as string,
+    slug,
+    host_name: body.host_name as string,
+    duration: (body.duration as string) || "30",
+    description: (body.description as string) || "",
+    meeting_provider: (body.meeting_provider as string) || "none",
+    meeting_url: (body.meeting_url as string) || "",
+    published: body.published === "1" ? "1" : "0",
+    start_date: (body.start_date as string) || "",
+    end_date: (body.end_date as string) || "",
+  };
+
+  // Check slug uniqueness
+  const existing = await EventTypesService.findBySlug(db, slug);
+  if (existing) {
+    return c.html(
+      <NewEventForm error={`URL Slug "${slug}" 已被使用，请换一个。`} values={formValues} />,
+      409
+    );
+  }
 
   const eventTypeId = await EventTypesService.create(db, {
-    slug: body.slug as string,
+    slug,
     name: body.name as string,
     host_name: body.host_name as string,
     duration_minutes: Number(body.duration),
@@ -100,6 +158,7 @@ app.post("/", async (c) => {
     custom_fields: (body.custom_fields_json as string) || "[]",
     meeting_provider: (body.meeting_provider as string) || "none",
     meeting_url: (body.meeting_url as string) || "",
+    published: body.published === "1" ? 1 : 0,
     start_date: (body.start_date as string) || null,
     end_date: (body.end_date as string) || null,
   });
@@ -141,7 +200,7 @@ app.get("/:id", async (c) => {
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">URL Slug</label>
-            <input type="text" name="slug" required value={event.slug} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+            <input type="text" value={event.slug} readonly disabled class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-400 bg-slate-50 cursor-not-allowed" />
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Host</label>
@@ -167,6 +226,13 @@ app.get("/:id", async (c) => {
           <div id="meeting-url-row-edit" style={event.meeting_provider === "static" ? "" : "display:none"}>
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting URL</label>
             <input type="url" name="meeting_url" value={event.meeting_url || ""} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+          </div>
+
+          <div>
+            <label class="inline-flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" name="published" value="1" checked={event.published === 1} class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+              <span class="text-sm font-medium text-slate-600">Published</span>
+            </label>
           </div>
 
           <div class="grid grid-cols-2 gap-4">
@@ -209,7 +275,6 @@ app.post("/:id", async (c) => {
   const body = await c.req.parseBody();
 
   await EventTypesService.update(db, id, {
-    slug: body.slug as string,
     name: body.name as string,
     host_name: body.host_name as string,
     duration_minutes: Number(body.duration),
@@ -217,6 +282,7 @@ app.post("/:id", async (c) => {
     custom_fields: (body.custom_fields_json as string) || "[]",
     meeting_provider: (body.meeting_provider as string) || "none",
     meeting_url: (body.meeting_url as string) || "",
+    published: body.published === "1" ? 1 : 0,
     start_date: (body.start_date as string) || null,
     end_date: (body.end_date as string) || null,
   });

@@ -7,7 +7,7 @@ const app = new Hono<Env>();
 
 app.get("/", async (c) => {
   const db = c.get("db");
-  const events = await EventTypesService.listAll(db);
+  const events = await EventTypesService.listPublished(db);
 
   return c.html(
     <Layout title="Mini Calendly">
