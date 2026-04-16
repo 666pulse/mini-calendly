@@ -6,6 +6,7 @@ import * as TencentMeetingService from "../services/tencent-meeting.service";
 import * as GoogleMeetService from "../services/google-meet.service";
 import type { CustomField } from "../services/entities";
 import { Layout } from "../components/Layout";
+import { MeetingIcon, MeetingButton } from "../components/MeetingBrand";
 import { Calendar } from "../components/Calendar";
 import { TimeSlots } from "../components/TimeSlots";
 import { getAvailableDates, getAvailableSlots, DEFAULT_TZ } from "../lib/availability";
@@ -572,22 +573,11 @@ app.get("/:slug/confirmed", async (c) => {
               {bookingMeetingUrl && (
                 <div class="flex items-start gap-3">
                   <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <MeetingIcon provider={event.meeting_provider} />
                   </div>
                   <div>
                     <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">会议地点</p>
-                    <a
-                      href={bookingMeetingUrl}
-                      target="_blank"
-                      class="inline-flex items-center gap-2 mt-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all shadow-sm hover:shadow"
-                    >
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                      加入会议
-                    </a>
+                    <MeetingButton provider={event.meeting_provider} url={bookingMeetingUrl} />
                   </div>
                 </div>
               )}
@@ -733,9 +723,7 @@ app.get("/:slug/manage/:token", async (c) => {
               {b.meeting_url && (
                 <div class="flex items-start gap-3">
                   <div class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path d="M15 10l4.553-2.276A1 1 0 0 1 21 8.618v6.764a1 1 0 0 1-1.447.894L15 14M3 8a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
+                    <MeetingIcon provider={(b as any).meeting_provider} />
                   </div>
                   <div>
                     <p class="text-xs text-slate-400 uppercase tracking-wider font-medium">会议地点</p>
@@ -744,13 +732,7 @@ app.get("/:slug/manage/:token", async (c) => {
                         会议已取消
                       </span>
                     ) : (
-                      <a
-                        href={b.meeting_url}
-                        target="_blank"
-                        class="inline-flex items-center gap-2 mt-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all shadow-sm hover:shadow"
-                      >
-                        加入会议
-                      </a>
+                      <MeetingButton provider={(b as any).meeting_provider} url={b.meeting_url} />
                     )}
                   </div>
                 </div>
