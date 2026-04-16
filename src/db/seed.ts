@@ -1,6 +1,6 @@
 import { createSqliteAdapter } from "./sqlite-adapter";
 import { initSchema } from "./schema";
-import { MONDAY_TO_FRIDAY_MON_FIRST } from "../lib/week";
+import { MONDAY_TO_FRIDAY_MON_FIRST } from "../lib/datetime";
 
 const db = createSqliteAdapter();
 await initSchema(db);

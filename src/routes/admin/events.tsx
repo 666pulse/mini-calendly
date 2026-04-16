@@ -6,7 +6,7 @@ import { CustomFieldsEditor } from "../../components/CustomFieldsEditor";
 import { AvailabilityEditor } from "../../components/AvailabilityEditor";
 import type { CustomField } from "../../services/entities";
 import { nestedBookings } from "./bookings";
-import { MONDAY_TO_FRIDAY_MON_FIRST } from "../../lib/week";
+import { MONDAY_TO_FRIDAY_MON_FIRST } from "../../lib/datetime";
 
 const app = new Hono<Env>();
 

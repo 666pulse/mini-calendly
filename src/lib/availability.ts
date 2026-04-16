@@ -1,15 +1,13 @@
 import type { DbAdapter } from "../db/adapter";
 import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
-import { jsDayToMonFirstIndex } from "./week";
-
-export const DEFAULT_TZ = "Asia/Singapore";
-const TZ_OFFSET_MS = 8 * 60 * 60 * 1000; // UTC+8
-
-/** Get "now" in the default timezone */
-function nowInTZ(): Date {
-  return new Date(Date.now() + TZ_OFFSET_MS);
-}
+import {
+  jsDayToMonFirstIndex,
+  getDaysInMonthUTC,
+  getTodayYmdInDefaultTZ,
+  nowInDefaultTZ,
+  parseYmdToUTCDate,
+} from "./datetime";
 
 export interface TimeSlot {
   start: string; // HH:mm
@@ -22,8 +20,8 @@ export async function getAvailableSlots(
   date: string, // YYYY-MM-DD
   durationMinutes: number,
 ): Promise<TimeSlot[]> {
-  const dateObj = new Date(date + "T00:00:00");
-  const dayOfWeek = jsDayToMonFirstIndex(dateObj.getDay());
+  const dateObj = parseYmdToUTCDate(date);
+  const dayOfWeek = jsDayToMonFirstIndex(dateObj.getUTCDay());
 
   const availabilities = await EventTypesService.getAvailabilityByDay(db, eventTypeId, dayOfWeek);
   if (availabilities.length === 0) return [];
@@ -31,8 +29,8 @@ export async function getAvailableSlots(
   const dayStart = date + "T00:00:00";
   const dayEnd = date + "T23:59:59";
   const bookings = await BookingsService.findByDateRange(db, eventTypeId, dayStart, dayEnd);
-  const now = nowInTZ();
-  const nowDateStr = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, "0")}-${String(now.getUTCDate()).padStart(2, "0")}`;
+  const now = nowInDefaultTZ();
+  const nowDateStr = getTodayYmdInDefaultTZ();
   const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
   const isToday = date === nowDateStr;
 
@@ -87,12 +85,12 @@ export async function getAvailableDates(
   const availableDays = new Set(availabilities.map((a) => a.day_of_week));
   const dates: number[] = [];
 
-  const daysInMonth = new Date(year, month, 0).getDate();
-  const now = nowInTZ();
+  const daysInMonth = getDaysInMonthUTC(year, month);
+  const now = nowInDefaultTZ();
   const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
-  const rangeStart = startDate ? new Date(startDate + "T00:00:00Z") : null;
-  const rangeEnd = endDate ? new Date(endDate + "T23:59:59Z") : null;
+  const rangeStart = startDate ? parseYmdToUTCDate(startDate) : null;
+  const rangeEnd = endDate ? new Date(parseYmdToUTCDate(endDate).getTime() + 24 * 60 * 60 * 1000 - 1) : null;
 
   for (let day = 1; day <= daysInMonth; day++) {
     const date = new Date(Date.UTC(year, month - 1, day));

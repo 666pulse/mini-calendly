@@ -5,6 +5,7 @@ import * as BookingsService from "../../services/bookings.service";
 import * as TencentMeetingService from "../../services/tencent-meeting.service";
 import { Layout } from "../../components/Layout";
 import type { CustomField } from "../../services/entities";
+import { DEFAULT_TZ, getTodayYmdInDefaultTZ } from "../../lib/datetime";
 
 // URL helpers
 function bookingUrl(eventId: number, bookingId: number) {
@@ -219,7 +220,7 @@ async function renderBookingDetail(c: any, eventId: number, bookingId: number) {
     month: "long",
     day: "numeric",
     year: "numeric",
-    timeZone: "Asia/Singapore",
+    timeZone: DEFAULT_TZ,
   });
   const startTime = b.start_time.split("T")[1]?.replace(":00", "") || "";
   const endTime = b.end_time.split("T")[1]?.replace(":00", "") || "";
@@ -430,7 +431,7 @@ nestedBookings.post("/export.csv", async (c) => {
   }
 
   const csv = "\uFEFF" + lines.join("\n"); // BOM for Excel
-  const filename = `bookings-${event.slug}-${new Date().toISOString().split("T")[0]}.csv`;
+  const filename = `bookings-${event.slug}-${getTodayYmdInDefaultTZ()}.csv`;
 
   return new Response(csv, {
     headers: {

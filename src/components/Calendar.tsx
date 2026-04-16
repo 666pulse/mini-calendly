@@ -1,4 +1,4 @@
-import { WEEKDAY_LABELS_ZH_SHORT_MON_FIRST, jsDayToMonFirstIndex } from "../lib/week";
+import { WEEKDAY_LABELS_ZH_SHORT_MON_FIRST, jsDayToMonFirstIndex, getDaysInMonthUTC } from "../lib/datetime";
 
 const MONTH_NAMES = [
   "一月", "二月", "三月", "四月", "五月", "六月",
@@ -18,8 +18,8 @@ export function Calendar({
   selectedDate?: number;
   baseUrl: string;
 }) {
-  const firstDay = jsDayToMonFirstIndex(new Date(year, month - 1, 1).getDay());
-  const daysInMonth = new Date(year, month, 0).getDate();
+  const firstDay = jsDayToMonFirstIndex(new Date(Date.UTC(year, month - 1, 1)).getUTCDay());
+  const daysInMonth = getDaysInMonthUTC(year, month);
 
   const prevMonth = month === 1 ? 12 : month - 1;
   const prevYear = month === 1 ? year - 1 : year;

@@ -1,4 +1,4 @@
-import { WEEKDAY_LABELS_EN_MON_FIRST } from "../lib/week";
+import { WEEKDAY_LABELS_EN_MON_FIRST } from "../lib/datetime";
 
 interface DaySlot {
   start_time: string;

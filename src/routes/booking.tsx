@@ -9,7 +9,8 @@ import { Layout } from "../components/Layout";
 import { MeetingIcon, MeetingButton } from "../components/MeetingBrand";
 import { Calendar } from "../components/Calendar";
 import { TimeSlots } from "../components/TimeSlots";
-import { getAvailableDates, getAvailableSlots, DEFAULT_TZ } from "../lib/availability";
+import { getAvailableDates, getAvailableSlots } from "../lib/availability";
+import { DEFAULT_TZ, formatYmdLabel, nowInDefaultTZ } from "../lib/datetime";
 
 const app = new Hono<Env>();
 
@@ -75,7 +76,7 @@ app.get("/:slug", async (c) => {
     );
   }
 
-  const now = new Date(Date.now() + 8 * 60 * 60 * 1000);
+  const now = nowInDefaultTZ();
   const year = Number(c.req.query("year")) || now.getUTCFullYear();
   const month = Number(c.req.query("month")) || now.getUTCMonth() + 1;
   const selectedDate = c.req.query("date") ? Number(c.req.query("date")) : undefined;
@@ -90,16 +91,15 @@ app.get("/:slug", async (c) => {
     slots = await getAvailableSlots(db, event.id, dateStr, event.duration_minutes);
   }
 
-  const selectedDateObj = selectedDate
-    ? new Date(year, month - 1, selectedDate)
-    : null;
-  const dateLabel = selectedDateObj
-    ? selectedDateObj.toLocaleDateString("zh-CN", {
+  const dateLabel = selectedDate
+    ? formatYmdLabel(
+        `${year}-${String(month).padStart(2, "0")}-${String(selectedDate).padStart(2, "0")}`,
+        "zh-CN",
+        {
         weekday: "long",
         month: "long",
         day: "numeric",
         year: "numeric",
-        timeZone: DEFAULT_TZ,
       })
     : null;
 
@@ -201,13 +201,11 @@ app.get("/:slug/book", async (c) => {
   const endMinutes = startH * 60 + startM + event.duration_minutes;
   const endTime = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
 
-  const dateObj = new Date(date + "T00:00:00");
-  const dateLabel = dateObj.toLocaleDateString("zh-CN", {
+  const dateLabel = formatYmdLabel(date, "zh-CN", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
-    timeZone: DEFAULT_TZ,
   });
 
   return c.html(
@@ -310,7 +308,7 @@ app.get("/:slug/book", async (c) => {
                     确认预约
                   </button>
                   <a
-                    href={`/${slug}?year=${dateObj.getFullYear()}&month=${dateObj.getMonth() + 1}&date=${dateObj.getDate()}`}
+                    href={`/${slug}?year=${date.slice(0, 4)}&month=${Number(date.slice(5, 7))}&date=${Number(date.slice(8, 10))}`}
                     class="px-4 py-2.5 text-sm text-slate-500 hover:text-slate-900 transition-colors"
                   >
                     返回
@@ -481,13 +479,11 @@ app.get("/:slug/confirmed", async (c) => {
   const endMinutes = startH * 60 + startM + event.duration_minutes;
   const endTimeStr = `${String(Math.floor(endMinutes / 60)).padStart(2, "0")}:${String(endMinutes % 60).padStart(2, "0")}`;
 
-  const dateObj = new Date(date + "T00:00:00");
-  const dateLabel = dateObj.toLocaleDateString("zh-CN", {
+  const dateLabel = formatYmdLabel(date, "zh-CN", {
     weekday: "long",
     month: "long",
     day: "numeric",
     year: "numeric",
-    timeZone: DEFAULT_TZ,
   });
 
   return c.html(
@@ -641,9 +637,9 @@ app.get("/:slug/manage/:token", async (c) => {
     );
   }
 
-  const dateObj = new Date(b.start_time);
-  const dateLabel = dateObj.toLocaleDateString("en-US", {
+  const dateLabel = new Date(b.start_time).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
+    timeZone: DEFAULT_TZ,
   });
   const startTime = b.start_time.split("T")[1]?.replace(":00", "") || "";
   const endTime = b.end_time.split("T")[1]?.replace(":00", "") || "";
