@@ -4,17 +4,21 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "start": "bun run src/index.ts",
-    "seed": "bun run src/db/seed.ts"
+    "dev": "bun run build:css && bun run --hot src/index.ts",
+    "start": "bun run build:css && bun run src/index.ts",
+    "seed": "bun run src/db/seed.ts",
+    "build:css": "tailwindcss -i src/styles/globals.css -o src/styles/generated.css --minify",
+    "watch:css": "tailwindcss -i src/styles/globals.css -o src/styles/generated.css --watch"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "wrangler": "^4.82.2"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "hono": "^4.12.12"
+    "hono": "^4.12.12",
+    "tailwindcss": "^4.2.2"
   }
 }
