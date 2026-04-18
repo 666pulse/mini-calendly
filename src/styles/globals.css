@@ -1,2 +1,5 @@
 @import "tailwindcss";
 @config "../../tailwind.config.js";
+
+dialog { margin: auto; }
+::selection { background: #c7d2fe; }

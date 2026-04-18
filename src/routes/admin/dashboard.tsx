@@ -15,7 +15,7 @@ app.get("/", async (c) => {
     <Layout title="Admin - Mini Calendly">
       <div class="max-w-5xl mx-auto p-6">
         <div class="flex items-center justify-between mb-8">
-          <h1 class="text-2xl font-bold text-slate-900">Dashboard</h1>
+          <h1 class="text-2xl font-semibold text-slate-900">Dashboard</h1>
           <a
             href="/admin/events/new"
             class="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all duration-200 shadow-sm hover:shadow"

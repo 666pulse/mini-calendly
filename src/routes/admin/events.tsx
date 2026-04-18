@@ -35,7 +35,7 @@ function NewEventForm({ error, values: v }: { error?: string; values?: FormValue
   return (
     <Layout title="New Event Type">
       <div class="max-w-xl mx-auto p-6">
-        <h1 class="text-2xl font-bold text-slate-900 mb-6">Create Event Type</h1>
+        <h1 class="text-2xl font-semibold text-slate-900 mb-6">Create Event Type</h1>
 
         {error && (
           <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
@@ -193,7 +193,7 @@ app.get("/:id", async (c) => {
   return c.html(
     <Layout title={`Edit ${event.name}`}>
       <div class="max-w-xl mx-auto p-6">
-        <h1 class="text-2xl font-bold text-slate-900 mb-6">Edit Event Type</h1>
+        <h1 class="text-2xl font-semibold text-slate-900 mb-6">Edit Event Type</h1>
         <form method="post" action={`/admin/events/${id}`} class="space-y-4">
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Event Name</label>

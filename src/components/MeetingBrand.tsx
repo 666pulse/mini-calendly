@@ -42,11 +42,11 @@ export function MeetingIcon({ provider, size }: { provider?: string; size?: numb
 const brandConfig: Record<string, { label: string; btnClass: string }> = {
   google: {
     label: "Google Meet",
-    btnClass: "bg-[#00ac47] text-white hover:bg-[#009a3e]",
+    btnClass: "bg-emerald-600 text-white hover:bg-emerald-700",
   },
   tencent: {
     label: "腾讯会议",
-    btnClass: "bg-[#006eff] text-white hover:bg-[#005ce6]",
+    btnClass: "bg-indigo-600 text-white hover:bg-indigo-700",
   },
 };
 

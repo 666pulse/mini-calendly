@@ -59,7 +59,7 @@ async function renderBookingsList(c: any, eventId?: number) {
     <Layout title={`${title} - Admin`}>
       <div class="max-w-5xl mx-auto p-6">
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold text-slate-900">{title}</h1>
+          <h1 class="text-2xl font-semibold text-slate-900">{title}</h1>
           <a href={backUrl} class="text-slate-500 text-sm hover:text-slate-600">{backLabel}</a>
         </div>
 
@@ -229,7 +229,7 @@ async function renderBookingDetail(c: any, eventId: number, bookingId: number) {
     <Layout title={`Booking #${b.id}`}>
       <div class="max-w-2xl mx-auto p-6">
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-2xl font-bold text-slate-900">Booking Detail</h1>
+          <h1 class="text-2xl font-semibold text-slate-900">Booking Detail</h1>
           <a href={listUrl(eventId)} class="text-slate-500 text-sm hover:text-slate-600">Back to list</a>
         </div>
 

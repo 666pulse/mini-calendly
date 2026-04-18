@@ -66,7 +66,7 @@ app.get("/:slug", async (c) => {
                 <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" stroke-width="2" stroke-linecap="round" />
               </svg>
             </div>
-            <h1 class="text-xl font-bold text-slate-900 mb-2">未找到活动</h1>
+            <h1 class="text-xl font-semibold text-slate-900 mb-2">未找到活动</h1>
             <p class="text-sm text-slate-500 mb-4">该活动可能已被移除或链接有误。</p>
             <a href="/" class="text-indigo-600 text-sm font-medium hover:underline">浏览所有活动</a>
           </div>
@@ -109,17 +109,17 @@ app.get("/:slug", async (c) => {
         <BookingHeader title={event.host_name} />
 
         <div class="flex-1 flex items-center justify-center p-4 md:p-8">
-          <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
+          <div class="bg-white rounded-xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
             {/* Left panel - Event info */}
-            <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: #4f46e515">
+            <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200/80 bg-slate-50">
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
                 <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                   <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
               <p class="text-sm text-slate-500 font-medium mb-1">{event.host_name}</p>
-              <h1 class="text-xl font-bold text-slate-900 mb-5">{event.name}</h1>
+              <h1 class="text-xl font-semibold text-slate-900 mb-5">{event.name}</h1>
 
               <div class="space-y-3">
                 <div class="flex items-center text-slate-500 text-sm">
@@ -151,7 +151,16 @@ app.get("/:slug", async (c) => {
 
             {/* Right panel - Calendar + Time slots */}
             <div class="flex-1 p-8">
-              <h2 class="text-lg font-bold text-slate-900 mb-6">选择日期和时间</h2>
+              <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-slate-900">选择日期和时间</h2>
+                <div class="flex items-center gap-2 text-sm text-slate-500">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" stroke-width="2" />
+                    <path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20" stroke-width="2" stroke-linecap="round" />
+                  </svg>
+                  <span>{DEFAULT_TZ} (UTC+8)</span>
+                </div>
+              </div>
 
               <div class="flex gap-8">
                 <div class="flex-1">
@@ -214,17 +223,17 @@ app.get("/:slug/book", async (c) => {
         <BookingHeader title="确认预约信息" />
 
         <div class="flex-1 flex items-center justify-center p-4 md:p-8">
-          <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
+          <div class="bg-white rounded-xl shadow-xl shadow-slate-200/50 max-w-4xl w-full flex flex-col md:flex-row overflow-hidden border border-slate-200/80">
             {/* Left panel */}
-            <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200/80 bg-gradient-to-b from-white to-slate-50/50">
-              <div class="w-10 h-10 rounded-xl flex items-center justify-center mb-4" style="background: #4f46e515">
+            <div class="md:w-72 p-8 border-b md:border-b-0 md:border-r border-slate-200/80 bg-slate-50">
+              <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center mb-4">
                 <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <rect x="3" y="4" width="18" height="18" rx="2" stroke-width="2" />
                   <path d="M16 2v4M8 2v4M3 10h18" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
               <p class="text-sm text-slate-500 font-medium mb-1">{event.host_name}</p>
-              <h1 class="text-xl font-bold text-slate-900 mb-5">{event.name}</h1>
+              <h1 class="text-xl font-semibold text-slate-900 mb-5">{event.name}</h1>
 
               <div class="space-y-3">
                 <div class="flex items-center text-slate-500 text-sm">
@@ -246,7 +255,7 @@ app.get("/:slug/book", async (c) => {
 
             {/* Right panel - Form */}
             <div class="flex-1 p-8">
-              <h2 class="text-lg font-bold text-slate-900 mb-6">填写信息</h2>
+              <h2 class="text-lg font-semibold text-slate-900 mb-6">填写信息</h2>
               <form method="post" action={`/${slug}/book`} class="space-y-4">
                 <input type="hidden" name="date" value={date} />
                 <input type="hidden" name="time" value={time} />
@@ -358,14 +367,14 @@ app.post("/:slug/book", async (c) => {
         <div class="flex flex-col min-h-screen">
           <BookingHeader />
           <div class="flex-1 flex items-center justify-center p-4">
-            <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 max-w-md text-center border border-slate-200/80">
+            <div class="bg-white rounded-xl shadow-xl shadow-slate-200/50 p-8 max-w-md text-center border border-slate-200/80">
               <div class="w-14 h-14 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
                 <svg class="w-7 h-7 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10" stroke-width="2" />
                   <path d="M15 9l-6 6M9 9l6 6" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
-              <h1 class="text-xl font-bold text-slate-900 mb-2">该时间已被预约</h1>
+              <h1 class="text-xl font-semibold text-slate-900 mb-2">该时间已被预约</h1>
               <p class="text-slate-500 text-sm mb-6">该时段刚刚被其他人预约，请选择其他时间。</p>
               <a href={`/${slug}`} class="inline-flex items-center justify-center bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-all shadow-sm">
                 返回日历
@@ -492,10 +501,10 @@ app.get("/:slug/confirmed", async (c) => {
         <BookingHeader />
 
         <div class="flex-1 flex items-center justify-center p-4 md:p-8">
-          <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 md:p-10 max-w-lg w-full border border-slate-200/80">
+          <div class="bg-white rounded-xl shadow-xl shadow-slate-200/50 p-8 md:p-10 max-w-lg w-full border border-slate-200/80">
             {/* Success header */}
             <div class="text-center mb-8">
-              <div class="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-5">
+              <div class="w-16 h-16 bg-emerald-50 rounded-xl flex items-center justify-center mx-auto mb-5">
                 <svg
                   class="w-8 h-8 text-emerald-600"
                   fill="none"
@@ -510,18 +519,18 @@ app.get("/:slug/confirmed", async (c) => {
                   />
                 </svg>
               </div>
-              <h1 class="text-2xl font-bold text-slate-900 mb-2">
+              <h1 class="text-2xl font-semibold text-slate-900 mb-2">
                 预约成功
               </h1>
             </div>
 
             {meetingFailed && (
-              <div class="bg-amber-50 border border-amber-200/60 rounded-xl p-4 mb-6">
+              <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-6">
                 <div class="flex items-start gap-3">
-                  <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg class="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M12 9v2m0 4h.01M12 2l10 18H2L12 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
-                  <p class="text-sm text-amber-800">
+                  <p class="text-sm text-yellow-800">
                     会议链接生成失败，主持人将另行分享会议信息。
                   </p>
                 </div>
@@ -626,7 +635,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   <path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" stroke-width="2" stroke-linecap="round" />
                 </svg>
               </div>
-              <h1 class="text-xl font-bold text-slate-900 mb-2">未找到预约</h1>
+              <h1 class="text-xl font-semibold text-slate-900 mb-2">未找到预约</h1>
               <p class="text-sm text-slate-500">该链接可能已过期或无效。</p>
             </div>
           </div>
@@ -650,10 +659,10 @@ app.get("/:slug/manage/:token", async (c) => {
         <BookingHeader title="管理你的预约" />
 
         <div class="flex-1 flex items-center justify-center p-4 md:p-8">
-          <div class="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 md:p-10 max-w-lg w-full border border-slate-200/80">
+          <div class="bg-white rounded-xl shadow-xl shadow-slate-200/50 p-8 md:p-10 max-w-lg w-full border border-slate-200/80">
             {/* Status header */}
             <div class="text-center mb-8">
-              <div class={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 ${
+              <div class={`w-16 h-16 rounded-xl flex items-center justify-center mx-auto mb-5 ${
                 b.status === "confirmed" ? "bg-emerald-50" : "bg-red-50"
               }`}>
                 {b.status === "confirmed" ? (
@@ -666,7 +675,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   </svg>
                 )}
               </div>
-              <h1 class="text-2xl font-bold text-slate-900 mb-2">你的预约</h1>
+              <h1 class="text-2xl font-semibold text-slate-900 mb-2">你的预约</h1>
               <span
                 class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                   b.status === "confirmed"
@@ -745,7 +754,7 @@ app.get("/:slug/manage/:token", async (c) => {
                   取消此预约
                 </button>
 
-                <dialog id="cancel-dialog" class="rounded-2xl shadow-2xl p-0 backdrop:bg-black/40 border border-slate-200">
+                <dialog id="cancel-dialog" class="rounded-xl shadow-xl p-0 backdrop:bg-black/40 border border-slate-200">
                   <form method="post" action={`/${(b as any).slug}/manage/${token}/cancel`} class="p-6 w-96">
                     <h3 class="text-lg font-semibold text-slate-900 mb-1">取消预约</h3>
                     <p class="text-sm text-slate-500 mb-4">此操作不可撤销。</p>
