@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "bun run build:css && bun run --hot src/index.ts",
     "start": "bun run build:css && bun run src/index.ts",
+    "deploy": "bun run build:css && wrangler deploy",
     "seed": "bun run src/db/seed.ts",
     "build:css": "tailwindcss -i src/styles/globals.css -o src/styles/generated.css --minify",
     "watch:css": "tailwindcss -i src/styles/globals.css -o src/styles/generated.css --watch"
