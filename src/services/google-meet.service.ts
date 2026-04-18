@@ -50,10 +50,23 @@ export async function createMeeting(
   refreshToken: string,
   subject: string,
   startTime: string, // ISO 8601: 2026-04-15T09:00:00+08:00
-  endTime: string
+  endTime: string,
+  timeZone = "Asia/Singapore"
 ): Promise<GoogleMeetInfo> {
   const accessToken = await getAccessToken(clientId, clientSecret, refreshToken);
   const proxy = getProxy();
+
+  const payload = {
+    summary: subject,
+    start: { dateTime: startTime, timeZone },
+    end: { dateTime: endTime, timeZone },
+    conferenceData: {
+      createRequest: {
+        requestId: crypto.randomUUID(),
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    },
+  };
 
   const res = await fetch(
     `${CALENDAR_API}/calendars/primary/events?conferenceDataVersion=1`,
@@ -63,24 +76,16 @@ export async function createMeeting(
         Authorization: `Bearer ${accessToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        summary: subject,
-        start: { dateTime: startTime },
-        end: { dateTime: endTime },
-        conferenceData: {
-          createRequest: {
-            requestId: crypto.randomUUID(),
-            conferenceSolutionKey: { type: "hangoutsMeet" },
-          },
-        },
-      }),
+      body: JSON.stringify(payload),
       ...(proxy ? { proxy } : {}),
     } as any
   );
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Google Calendar API error: ${text}`);
+    throw new Error(
+      `Google Calendar API ${res.status}: ${text}\nRequest: ${JSON.stringify(payload)}`
+    );
   }
 
   const event = (await res.json()) as {
