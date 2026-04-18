@@ -33,6 +33,22 @@ export async function initSchema(db: DbAdapter) {
   `);
 
   await db.exec(`
+    CREATE TABLE IF NOT EXISTS google_accounts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      google_user_id TEXT UNIQUE NOT NULL,
+      email TEXT NOT NULL,
+      display_name TEXT DEFAULT '',
+      refresh_token_encrypted TEXT NOT NULL,
+      scope TEXT DEFAULT '',
+      status TEXT DEFAULT 'active' CHECK(status IN ('active','invalid','revoked')),
+      last_error TEXT DEFAULT '',
+      last_refreshed_at TEXT,
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  await db.exec(`
     CREATE TABLE IF NOT EXISTS bookings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       event_type_id INTEGER NOT NULL,
@@ -77,6 +93,9 @@ export async function initSchema(db: DbAdapter) {
   if (!etCols.find((c) => c.name === "published")) {
     await db.run("ALTER TABLE event_types ADD COLUMN published INTEGER DEFAULT 1");
   }
+  if (!etCols.find((c) => c.name === "google_account_id")) {
+    await db.run("ALTER TABLE event_types ADD COLUMN google_account_id INTEGER");
+  }
 
   const bCols = await db.all<{ name: string }>("PRAGMA table_info(bookings)");
   if (!bCols.find((c) => c.name === "custom_data")) {
@@ -116,4 +135,6 @@ export async function initSchema(db: DbAdapter) {
   await db.exec(`CREATE INDEX IF NOT EXISTS idx_bookings_event_start_id ON bookings(event_type_id, start_time, id DESC)`);
   await db.exec(`CREATE INDEX IF NOT EXISTS idx_bookings_cancel_token ON bookings(cancel_token)`);
   await db.exec(`CREATE INDEX IF NOT EXISTS idx_availability_event_day_start ON availability(event_type_id, day_of_week, start_time)`);
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_google_accounts_status ON google_accounts(status)`);
+  await db.exec(`CREATE INDEX IF NOT EXISTS idx_event_types_google_account ON event_types(google_account_id)`);
 }

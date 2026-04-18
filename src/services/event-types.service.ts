@@ -32,11 +32,12 @@ export async function create(
     published: number;
     start_date: string | null;
     end_date: string | null;
+    google_account_id: number | null;
   }
 ) {
   const result = await db.run(
-    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, meeting_provider, meeting_url, published, start_date, end_date) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.published, data.start_date, data.end_date]
+    `INSERT INTO event_types (slug, name, host_name, duration_minutes, description, custom_fields, meeting_provider, meeting_url, published, start_date, end_date, google_account_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    [data.slug, data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.published, data.start_date, data.end_date, data.google_account_id]
   );
   await emitAfterCreate(db, "event_types", result.lastInsertRowid);
   return result.lastInsertRowid;
@@ -56,11 +57,12 @@ export async function update(
     published: number;
     start_date: string | null;
     end_date: string | null;
+    google_account_id: number | null;
   }
 ) {
   await db.run(
-    `UPDATE event_types SET name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, meeting_provider = ?, meeting_url = ?, published = ?, start_date = ?, end_date = ? WHERE id = ?`,
-    [data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.published, data.start_date, data.end_date, id]
+    `UPDATE event_types SET name = ?, host_name = ?, duration_minutes = ?, description = ?, custom_fields = ?, meeting_provider = ?, meeting_url = ?, published = ?, start_date = ?, end_date = ?, google_account_id = ? WHERE id = ?`,
+    [data.name, data.host_name, data.duration_minutes, data.description, data.custom_fields, data.meeting_provider, data.meeting_url, data.published, data.start_date, data.end_date, data.google_account_id, id]
   );
   await emitAfterUpdate(db, "event_types", id);
 }

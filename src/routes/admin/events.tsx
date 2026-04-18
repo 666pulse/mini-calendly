@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import type { Env } from "../../app";
 import * as EventTypesService from "../../services/event-types.service";
+import * as GoogleAccountsService from "../../services/google-accounts.service";
 import { Layout } from "../../components/Layout";
 import { CustomFieldsEditor } from "../../components/CustomFieldsEditor";
 import { AvailabilityEditor } from "../../components/AvailabilityEditor";
-import type { CustomField } from "../../services/entities";
+import type { CustomField, GoogleAccount } from "../../services/entities";
 import { nestedBookings } from "./bookings";
 import { MONDAY_TO_FRIDAY_MON_FIRST } from "../../lib/datetime";
 
@@ -23,15 +24,67 @@ interface FormValues {
   description?: string;
   meeting_provider?: string;
   meeting_url?: string;
+  google_account_id?: string;
   published?: string;
   start_date?: string;
   end_date?: string;
 }
 
+/** Inline script: toggle google-account-row + meeting-url-row based on provider value. */
+const PROVIDER_TOGGLE_JS = (suffix: string) =>
+  `(function(){var v=this.value;` +
+  `document.getElementById('meeting-url-row-${suffix}').style.display = v==='static' ? '' : 'none';` +
+  `var g=document.getElementById('google-account-row-${suffix}'); if(g) g.style.display = v==='google' ? '' : 'none';` +
+  `}).call(this)`;
+
+function GoogleAccountSelect({
+  accounts,
+  selected,
+  suffix,
+  show,
+}: {
+  accounts: GoogleAccount[];
+  selected?: number | null;
+  suffix: string;
+  show: boolean;
+}) {
+  return (
+    <div id={`google-account-row-${suffix}`} style={show ? "" : "display:none"}>
+      <label class="block text-sm font-medium text-slate-600 mb-1">Google Account *</label>
+      {accounts.length === 0 ? (
+        <p class="text-sm text-slate-500">
+          没有已连接的 Google 账号。请先到{" "}
+          <a href="/admin/accounts" class="text-indigo-600 hover:underline">/admin/accounts</a>{" "}
+          连接账号。
+        </p>
+      ) : (
+        <select name="google_account_id" class={inputCls}>
+          <option value="">-- 选择账号 --</option>
+          {accounts.map((a) => (
+            <option value={String(a.id)} selected={selected === a.id}>
+              {a.email}
+              {a.status !== "active" ? ` (${a.status})` : ""}
+            </option>
+          ))}
+        </select>
+      )}
+    </div>
+  );
+}
+
 const inputCls = "w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors";
 
-function NewEventForm({ error, values: v }: { error?: string; values?: FormValues }) {
+function NewEventForm({
+  error,
+  values: v,
+  googleAccounts,
+}: {
+  error?: string;
+  values?: FormValues;
+  googleAccounts: GoogleAccount[];
+}) {
   const mp = v?.meeting_provider || "none";
+  const selectedAccountId = v?.google_account_id ? Number(v.google_account_id) : null;
   return (
     <Layout title="New Event Type">
       <div class="max-w-xl mx-auto p-6">
@@ -66,7 +119,7 @@ function NewEventForm({ error, values: v }: { error?: string; values?: FormValue
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
-            <select name="meeting_provider" class={inputCls} id="meeting-provider-new" onchange="document.getElementById('meeting-url-row-new').style.display = this.value === 'static' ? '' : 'none'">
+            <select name="meeting_provider" class={inputCls} id="meeting-provider-new" onchange={PROVIDER_TOGGLE_JS("new")}>
               <option value="none" selected={mp === "none"}>None</option>
               <option value="google" selected={mp === "google"}>Google Meet (auto-create)</option>
               <option value="tencent" selected={mp === "tencent"}>Tencent Meeting (auto-create)</option>
@@ -77,6 +130,12 @@ function NewEventForm({ error, values: v }: { error?: string; values?: FormValue
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting URL</label>
             <input type="url" name="meeting_url" value={v?.meeting_url || ""} class={inputCls} placeholder="https://meet.google.com/xxx-xxx-xxx" />
           </div>
+          <GoogleAccountSelect
+            accounts={googleAccounts}
+            selected={selectedAccountId}
+            suffix="new"
+            show={mp === "google"}
+          />
 
           <div>
             <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -117,8 +176,10 @@ function NewEventForm({ error, values: v }: { error?: string; values?: FormValue
   );
 }
 
-app.get("/new", (c) => {
-  return c.html(<NewEventForm />);
+app.get("/new", async (c) => {
+  const db = c.get("db");
+  const googleAccounts = await GoogleAccountsService.list(db);
+  return c.html(<NewEventForm googleAccounts={googleAccounts} />);
 });
 
 // Create event type
@@ -126,6 +187,9 @@ app.post("/", async (c) => {
   const db = c.get("db");
   const body = await c.req.parseBody();
   const slug = body.slug as string;
+  const provider = (body.meeting_provider as string) || "none";
+  const googleAccountIdStr = (body.google_account_id as string) || "";
+  const googleAccountId = provider === "google" && googleAccountIdStr ? Number(googleAccountIdStr) : null;
 
   const formValues: FormValues = {
     name: body.name as string,
@@ -133,8 +197,9 @@ app.post("/", async (c) => {
     host_name: body.host_name as string,
     duration: (body.duration as string) || "30",
     description: (body.description as string) || "",
-    meeting_provider: (body.meeting_provider as string) || "none",
+    meeting_provider: provider,
     meeting_url: (body.meeting_url as string) || "",
+    google_account_id: googleAccountIdStr,
     published: body.published === "1" ? "1" : "0",
     start_date: (body.start_date as string) || "",
     end_date: (body.end_date as string) || "",
@@ -143,8 +208,13 @@ app.post("/", async (c) => {
   // Check slug uniqueness
   const existing = await EventTypesService.findBySlug(db, slug);
   if (existing) {
+    const googleAccounts = await GoogleAccountsService.list(db);
     return c.html(
-      <NewEventForm error={`URL Slug "${slug}" 已被使用，请换一个。`} values={formValues} />,
+      <NewEventForm
+        error={`URL Slug "${slug}" 已被使用，请换一个。`}
+        values={formValues}
+        googleAccounts={googleAccounts}
+      />,
       409
     );
   }
@@ -156,11 +226,12 @@ app.post("/", async (c) => {
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
     custom_fields: (body.custom_fields_json as string) || "[]",
-    meeting_provider: (body.meeting_provider as string) || "none",
+    meeting_provider: provider,
     meeting_url: (body.meeting_url as string) || "",
     published: body.published === "1" ? 1 : 0,
     start_date: (body.start_date as string) || null,
     end_date: (body.end_date as string) || null,
+    google_account_id: googleAccountId,
   });
 
   const availJson = JSON.parse((body.availability_json as string) || "{}");
@@ -190,6 +261,8 @@ app.get("/:id", async (c) => {
     availData[a.day_of_week] = daySlots;
   }
 
+  const googleAccounts = await GoogleAccountsService.list(db);
+
   return c.html(
     <Layout title={`Edit ${event.name}`}>
       <div class="max-w-xl mx-auto p-6">
@@ -217,7 +290,7 @@ app.get("/:id", async (c) => {
           </div>
           <div>
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting Provider</label>
-            <select name="meeting_provider" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" id="meeting-provider-edit" onchange="document.getElementById('meeting-url-row-edit').style.display = this.value === 'static' ? '' : 'none'">
+            <select name="meeting_provider" class={inputCls} id="meeting-provider-edit" onchange={PROVIDER_TOGGLE_JS("edit")}>
               <option value="none" selected={event.meeting_provider === "none" || !event.meeting_provider}>None</option>
               <option value="google" selected={event.meeting_provider === "google"}>Google Meet (auto-create)</option>
               <option value="tencent" selected={event.meeting_provider === "tencent"}>Tencent Meeting (auto-create)</option>
@@ -226,8 +299,14 @@ app.get("/:id", async (c) => {
           </div>
           <div id="meeting-url-row-edit" style={event.meeting_provider === "static" ? "" : "display:none"}>
             <label class="block text-sm font-medium text-slate-600 mb-1">Meeting URL</label>
-            <input type="url" name="meeting_url" value={event.meeting_url || ""} class="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" placeholder="https://meet.google.com/xxx-xxx-xxx" />
+            <input type="url" name="meeting_url" value={event.meeting_url || ""} class={inputCls} placeholder="https://meet.google.com/xxx-xxx-xxx" />
           </div>
+          <GoogleAccountSelect
+            accounts={googleAccounts}
+            selected={event.google_account_id || null}
+            suffix="edit"
+            show={event.meeting_provider === "google"}
+          />
 
           <div>
             <label class="inline-flex items-center gap-2 cursor-pointer">
@@ -274,6 +353,9 @@ app.post("/:id", async (c) => {
   const db = c.get("db");
   const id = Number(c.req.param("id"));
   const body = await c.req.parseBody();
+  const provider = (body.meeting_provider as string) || "none";
+  const googleAccountIdStr = (body.google_account_id as string) || "";
+  const googleAccountId = provider === "google" && googleAccountIdStr ? Number(googleAccountIdStr) : null;
 
   await EventTypesService.update(db, id, {
     name: body.name as string,
@@ -281,11 +363,12 @@ app.post("/:id", async (c) => {
     duration_minutes: Number(body.duration),
     description: (body.description as string) || "",
     custom_fields: (body.custom_fields_json as string) || "[]",
-    meeting_provider: (body.meeting_provider as string) || "none",
+    meeting_provider: provider,
     meeting_url: (body.meeting_url as string) || "",
     published: body.published === "1" ? 1 : 0,
     start_date: (body.start_date as string) || null,
     end_date: (body.end_date as string) || null,
+    google_account_id: googleAccountId,
   });
 
   const availJson = JSON.parse((body.availability_json as string) || "{}");

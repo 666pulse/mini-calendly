@@ -11,7 +11,24 @@ export interface EventType {
   published: number;       // 1 = published, 0 = draft
   start_date: string | null; // YYYY-MM-DD
   end_date: string | null;   // YYYY-MM-DD
+  google_account_id: number | null; // FK -> google_accounts.id (when meeting_provider='google')
   created_at: string;
+}
+
+export type GoogleAccountStatus = "active" | "invalid" | "revoked";
+
+export interface GoogleAccount {
+  id: number;
+  google_user_id: string;   // sub claim / subject
+  email: string;
+  display_name: string;
+  refresh_token_encrypted: string; // base64url(iv | ciphertext+tag)
+  scope: string;
+  status: GoogleAccountStatus;
+  last_error: string;
+  last_refreshed_at: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface CustomField {

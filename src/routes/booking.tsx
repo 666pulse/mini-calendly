@@ -4,6 +4,8 @@ import * as EventTypesService from "../services/event-types.service";
 import * as BookingsService from "../services/bookings.service";
 import * as TencentMeetingService from "../services/tencent-meeting.service";
 import * as GoogleMeetService from "../services/google-meet.service";
+import { AccountInvalidError } from "../services/google-meet.service";
+import * as GoogleAccountsService from "../services/google-accounts.service";
 import type { CustomField } from "../services/entities";
 import { Layout } from "../components/Layout";
 import { MeetingIcon, MeetingButton } from "../components/MeetingBrand";
@@ -418,16 +420,22 @@ app.post("/:slug/book", async (c) => {
   } else if (event.meeting_provider === "google") {
     const gClientId = getEnvVar(c, "GOOGLE_CLIENT_ID");
     const gClientSecret = getEnvVar(c, "GOOGLE_CLIENT_SECRET");
-    const gRefreshToken = getEnvVar(c, "GOOGLE_REFRESH_TOKEN");
-    if (gClientId && gClientSecret && gRefreshToken) {
+    const encKey = getEnvVar(c, "GOOGLE_MEETING_OAUTH_ENC_KEY");
+    const account = event.google_account_id
+      ? await GoogleAccountsService.findById(db, event.google_account_id)
+      : null;
+
+    if (gClientId && gClientSecret && encKey && account && account.status === "active") {
       const isoStart = `${date}T${time}:00+08:00`;
       const isoEnd = `${date}T${endTimeStr}:00+08:00`;
       for (let attempt = 1; attempt <= 3; attempt++) {
         try {
           const meeting = await GoogleMeetService.createMeeting(
+            db,
+            account,
             gClientId,
             gClientSecret,
-            gRefreshToken,
+            encKey,
             `${event.name} - ${name}`,
             isoStart,
             isoEnd
@@ -437,9 +445,15 @@ app.post("/:slug/book", async (c) => {
           break;
         } catch (e) {
           console.error(`Google Meet attempt ${attempt}/3 failed:`, e);
+          if (e instanceof AccountInvalidError) break; // no point retrying a dead token
           if (attempt < 3) await new Promise((r) => setTimeout(r, 1000));
         }
       }
+    } else {
+      console.warn(
+        `Google Meet skipped for event ${event.id}: missing credentials/account or account not active ` +
+          `(account_id=${event.google_account_id}, status=${account?.status ?? "null"}, encKey=${!!encKey})`
+      );
     }
   } else if (event.meeting_provider === "static" && event.meeting_url) {
     meetingUrl = event.meeting_url;
@@ -826,13 +840,20 @@ app.post("/:slug/manage/:token/cancel", async (c) => {
     } else if (provider === "google") {
       const gClientId = getEnvVar(c, "GOOGLE_CLIENT_ID");
       const gClientSecret = getEnvVar(c, "GOOGLE_CLIENT_SECRET");
-      const gRefreshToken = getEnvVar(c, "GOOGLE_REFRESH_TOKEN");
-      if (gClientId && gClientSecret && gRefreshToken) {
+      const encKey = getEnvVar(c, "GOOGLE_MEETING_OAUTH_ENC_KEY");
+      const eventTypeId = (b as any).event_type_id as number | undefined;
+      const eventRow = eventTypeId ? await EventTypesService.findById(db, eventTypeId) : null;
+      const account = eventRow?.google_account_id
+        ? await GoogleAccountsService.findById(db, eventRow.google_account_id)
+        : null;
+      if (gClientId && gClientSecret && encKey && account && account.status === "active") {
         try {
-          await GoogleMeetService.cancelMeeting(gClientId, gClientSecret, gRefreshToken, b.meeting_id);
+          await GoogleMeetService.cancelMeeting(db, account, gClientId, gClientSecret, encKey, b.meeting_id);
         } catch (e) {
           console.error("Failed to cancel Google Meet:", e);
         }
+      } else {
+        console.warn(`Google Meet cancel skipped: missing account or credentials for booking ${b.id}`);
       }
     }
   }

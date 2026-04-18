@@ -10,6 +10,14 @@ export type Env = {
     ADMIN_USER?: string;
     ADMIN_PASS?: string;
     TENCENT_MEETING_TOKEN?: string;
+    GOOGLE_CLIENT_ID?: string;
+    GOOGLE_CLIENT_SECRET?: string;
+    /** @deprecated replaced by google_accounts table; kept only for Import-legacy fallback */
+    GOOGLE_REFRESH_TOKEN?: string;
+    /** AES-GCM 256 key, base64. Required for google_accounts refresh_token encryption. */
+    GOOGLE_MEETING_OAUTH_ENC_KEY?: string;
+    /** Override base URL for OAuth redirect_uri (used behind reverse proxy). */
+    APP_BASE_URL?: string;
   };
   Variables: {
     db: DbAdapter;
